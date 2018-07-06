@@ -1,0 +1,9 @@
+{
+    "name": "avtomon/Player",
+    "description": "TypeScript/JavaScript player",
+    "type": "project",
+    "minimum-stability": "stable",
+    "config": {
+	      "process-timeout": 1800
+    }
+}
