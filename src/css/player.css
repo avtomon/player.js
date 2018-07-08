@@ -1,0 +1,249 @@
+.player {
+    font-size: 0;
+    user-select: none;
+}
+
+.player .image-wrapper > .img {
+    height: 6rem;
+    pointer-events: auto;
+    cursor: pointer;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    width: 20rem;
+    background-size: cover;
+    background-position: center;
+    max-width: 30%;
+    position: relative;
+}
+
+.player .image-wrapper > .img > i {
+    display: none;
+}
+
+.player .image-wrapper > .img:hover > i {
+    position: absolute;
+    right: 0;
+    background-color: white;
+    opacity: .8;
+    display: block;
+}
+
+.player.book .image-wrapper > .img {
+    max-height: 15rem;
+    max-width: 15rem;
+}
+
+.player .image-wrapper > .img:after {
+    content: attr(title);
+    font-size: 1rem;
+    padding: 0 1rem;
+    background-color: white;
+    position: absolute;
+    bottom: 0;
+    opacity: .8;
+}
+
+.player .image-wrapper .img.current {
+    -webkit-filter: grayscale(100%);
+    -moz-filter: grayscale(100%);
+    -ms-filter: grayscale(100%);
+    -o-filter: grayscale(100%);
+    filter: grayscale(100%);
+    filter: gray;
+}
+
+.player .main-wrapper video,
+.player .main-wrapper img,
+.player .main-wrapper iframe {
+    width: 100%;
+    background-color: black;
+}
+
+.player .main-wrapper iframe {
+    height: 40vh;
+}
+
+.player > .main-wrapper {
+    margin-bottom: 1rem;
+    position: relative;
+    width: 100%;
+}
+
+.player.video > .main-wrapper {
+    margin-bottom: 0.4rem;
+}
+
+.player .main-wrapper:before, .player .main-wrapper:after {
+    font-size: 6rem;
+    color: white;
+    font-family: 'Material Icons';
+    cursor: pointer;
+    position: absolute;
+    z-index: 1;
+    width: 6rem;
+    display: flex;
+    align-items: center;
+    background-color: #343843;
+    opacity: 0.7;
+    top: 0;
+    height: 100%;
+}
+
+.player.video .main-wrapper:before, .player.video .main-wrapper:after {
+    height: calc(100% - 4.6rem);
+}
+
+/*.player .main-wrapper:hover:before {
+    content: 'keyboard_arrow_left';
+    left: 0;
+}
+
+.player .main-wrapper:hover:after {
+    content: 'keyboard_arrow_right';
+    left: 100%;
+    transform: translateX(-100%);
+}*/
+
+.player .image-wrapper {
+    background-color: #343843;
+    overflow: hidden;
+    pointer-events: none;
+    position: relative;
+    display: flex;
+    align-items: center;
+    width: 100%;
+}
+
+.player .image-wrapper:before,
+.player .image-wrapper:after {
+    font-size: 50px;
+    color: white;
+    font-family: 'Material Icons';
+    cursor: pointer;
+    pointer-events: auto;
+    position: absolute;
+    z-index: 1;
+    width: 50px;
+    display: flex;
+    align-items: center;
+    background-color: #343843;
+    opacity: 0.7;
+    top: 0;
+    height: 100%;
+}
+
+.player .image-wrapper:before {
+    content: 'keyboard_arrow_left';
+    left: 0;
+}
+
+.player .image-wrapper:after {
+    content: 'keyboard_arrow_right';
+    left: 100%;
+    transform: translateX(-100%);
+}
+
+/*---------------------------- video component ----------------------------*/
+
+/*video::-webkit-media-controls-enclosure {
+    display: table;
+    height: 4rem;
+}
+
+video::-webkit-media-controls-panel {
+    opacity: 0.8;
+    background-color: #343843;
+    height: 4rem;
+}
+
+audio::-webkit-media-controls-panel {
+    background-color: white;
+    height: 4rem;
+}
+
+video::-webkit-media-controls-volume-slider,
+video::-webkit-media-controls-timeline,
+audio::-webkit-media-controls-timeline,
+audio::-webkit-media-controls-volume-slider {
+    background-image: -webkit-linear-gradient(to right, #04a598, #17ee6c);
+    background-image:    -moz-linear-gradient(to right, #04a598, #17ee6c);
+    background-image:     -ms-linear-gradient(to right, #04a598, #17ee6c);
+    background-image:      -o-linear-gradient(to right, #04a598, #17ee6c);
+    background-image:         linear-gradient(to right, #04a598, #17ee6c);
+    cursor: pointer;
+}
+
+video::-webkit-media-controls-play-button,
+video::-webkit-media-controls-start-playback-button {
+    cursor: pointer;
+    -webkit-appearance: none;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-image: url('data:image/svg+xml;utf-8,<svg fill="#FFFFFF" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"> <path d="M8 5v14l11-7z"/> <path d="M0 0h24v24H0z" fill="none"/> </svg>');
+}
+
+video[status=play]::-webkit-media-controls-play-button,
+video[status=play]
+::-webkit-media-controls-start-playback-button {
+    background-image: url('data:image/svg+xml;utf-8,<svg fill="#FFFFFF" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"> <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/> <path d="M0 0h24v24H0z" fill="none"/> </svg>');
+}
+
+video::-webkit-media-controls-fullscreen-button {
+    cursor: pointer;
+    -webkit-appearance: none;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-image: url('data:image/svg+xml;utf-8,<svg fill="#FFFFFF" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"> <path d="M0 0h24v24H0z" fill="none"/> <path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/> </svg>');
+}
+
+video[fullscreen=yes]::-webkit-media-controls-fullscreen-button {
+    background-image: url('data:image/svg+xml;utf-8,<svg fill="#FFFFFF" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"> <path d="M0 0h24v24H0z" fill="none"/> <path d="M5 16h3v3h2v-5H5v2zm3-8H5v2h5V5H8v3zm6 11h2v-3h3v-2h-5v5zm2-11V5h-2v5h5V8h-3z"/> </svg>');
+}
+
+video::-webkit-media-controls-mute-button {
+    cursor: pointer;
+    -webkit-appearance: none;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+video[volume=none]::-webkit-media-controls-mute-button {
+    background-image: url('data:image/svg+xml;utf-8,<svg fill="#FFFFFF" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"> <path d="M7 9v6h4l5 5V4l-5 5H7z"/> <path d="M0 0h24v24H0z" fill="none"/> </svg>');
+}
+
+video[volume=low]::-webkit-media-controls-mute-button {
+    background-image: url('data:image/svg+xml;utf-8,<svg fill="#FFFFFF" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"> <path d="M18.5 12c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM5 9v6h4l5 5V4L9 9H5z"/> <path d="M0 0h24v24H0z" fill="none"/> </svg>');
+}
+
+video[volume=high]::-webkit-media-controls-mute-button {
+    background-image: url('data:image/svg+xml;utf-8,<svg fill="#FFFFFF" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"> <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/> <path d="M0 0h24v24H0z" fill="none"/> </svg>');
+}
+
+video::-webkit-media-controls-current-time-display:hover,
+video::-webkit-media-controls-time-remaining-display:hover,
+video::-webkit-media-controls-play-button:hover,
+video::-webkit-media-controls-start-playback-button:hover,
+video::-webkit-media-controls-mute-button:hover,
+video::-webkit-media-controls-fullscreen-button:hover {
+    cursor: pointer;
+    -webkit-appearance: none;
+    opacity: 0.8;
+}
+
+video::-webkit-media-controls-current-time-display,
+video::-webkit-media-controls-time-remaining-display {
+    cursor: pointer;
+    font-family: 'Segoe UI';
+    font-size: 1rem;
+    font-weight: normal;
+    color: white
+}
+
+audio::-webkit-media-controls-current-time-display,
+audio::-webkit-media-controls-time-remaining-display {
+    cursor: pointer;
+    font-family: 'Segoe UI';
+    font-size: 1rem;
+    font-weight: normal;
+}*/
