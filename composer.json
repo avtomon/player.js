@@ -1,7 +1,8 @@
 {
     "name": "avtomon/Player",
     "description": "TypeScript/JavaScript player",
-    "minimum-stability": "dev",
+    "type": "project",
+    "minimum-stability": "stable",
     "config": {
 	      "process-timeout": 1800
     }
