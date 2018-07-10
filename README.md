@@ -1,9 +1,9 @@
-<a name="Player"></a>
+<a name="Player.js"></a>
 
-## Player
-Класс плеера
+## Player.js
+Просмотрщик на чистом JavaScript. На данный момент может отображать видео, графику и книги в формате PDF.
 
-**Kind**: global class  
+**Тип**: global class  
 
 * [Player](#Player)
     * [new Player(element, cnf)](#new_Player_new)
