@@ -2,7 +2,7 @@
 var QooizPlayer;
 (function (QooizPlayer) {
     /**
-     * Класс плеера
+     * Просмотрщик на чистом JavaScript. На данный момент может отображать видео, графику и книги в формате PDF.
      */
     class Player {
         /**
