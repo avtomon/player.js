@@ -1,107 +1,107 @@
 # Player.js
 
-A viewer in pure JavaScript. At the moment can display video, graphics and books in PDF format.
+Viewer on pure JavaScript. At the moment it can display video, graphics and books in PDF format.
 
 The module requires an HTML block with one of the predefined classes:
-- <b> video </b> - a video player will be created;
-- <b> image </b> - picture viewer;
-- <b> book </b> - PDF viewer
+- <b > video</b > - video player will be created;
+- <b > image</b > - image viewer;
+<b>book</b> - the viewer of books in PDF format
 
-If there is such a block, then it is very simple to create a block:
+If there is such a block, it is very easy to create a block:
 
 Suppose that such a block is:
 
 ```
-<div class = "video"> </div>
+<div class= "video" ></div>
 ```
 
 then the code for creating the player object in the simplest case:
 
 ```
-let player = new Player (document.querySelector ('div.video'));
+let player = new Player (document.querySelector('div.video'));
 ```
 
-The second parameter of the constructor can be a configuration object - an object that implements the following interface:
+The second parameter of the constructor can be a configuration object-the object implementing the following interface:
 
 ```
 interface IPlayerOptions {
 
 /**
-* Path to the file with styles
-*/
-readonly styleFilePath ?: string;
+     * Path to file with styles
+     */
+    readonly styleFilePath?: string;
 
 /**
-* Select the first item when the player is initialized
-*/
-readonly activate ?: boolean;
+     * Select the first item when initializing the player
+     */
+    readonly activate?: boolean;
 
 /**
-* Viewer class
-*/
-readonly mainWrapperClass ?: string;
+     * Class of viewing unit
+     */
+    readonly mainWrapperClass?: string;
 
 /**
-* Block class preview
-*/
-readonly imageWrapperClass ?: string;
+     * Class block preview
+     */
+    readonly imageWrapperClass?: string;
 
 /**
-* Width of the scroll buttons
-*/
-readonly scrollButtonsWidth ?: number;
+     * Width of the scroll buttons
+     */
+    readonly scrollButtonsWidth?: number;
 
 /**
-* Accuracy of clicking on the scroll buttons
-*/
-readonly scrollButtonsPadding ?: number;
+     * Error of click on scroll buttons
+     */
+     readonly scrollButtonsPadding?: number;
 
 /**
-* Images with this class are not loaded into the player
-*/
-readonly imageStopClass ?: string;
+      * Images with this class are not loaded into the player
+      */
+      readonly imageStopClass?: string;
 }
 ```
 
-Each resource uploaded to the viewer has a preview in the form of an image. Actually, in the form of images in the player, new elements are added, and then converted into an internal format.
+Each resource loaded into the viewer has a preview in the form of an image. Actually, in the form of images, new elements are added to the player and then converted into an internal format.
 
-You can add items to the player in the following way:
-
-```
-player.addItem (image, true);
-```
-
-Elements are always added as HTMLImageElement objects that must contain the required artibuts:
-
-- <i> src </i> - the path to the image;
-- <i> title </i> - the name of the downloadable resource;
-- <b> <i> data-object-src </i> </b> - the path to the resource that represents the image (link to video, image or book).
-
-and can contain optional attributes:
-- <i> data-type </i> - this attribute allows you to specify an optional resource type, if you want to somehow divide resources by type.
-
-This creates <i>\<span> </i> elements with backed attributes + by default the <i> class </i> attribute is set with the value <i> img </i> the internal HTML will be:
+You can add elements to the player in the following way:
 
 ```
-<i class = "material-icons"> close </i>
+player.addItem(image, true);
 ```
 
-if you use the library [materializecss](https://materializecss.com), then such a markup element will add a button to remove the element of the player.
+Elements are always added in the form of the HTMLImageElement object, which should contain the necessary most were:
 
-The second parameter specifies whether to override the added element to the same tale after adding or not.
+- <I > src</i> - image path;
+- <I > title</i> - name of the downloaded resource;
+- <b><I>data-object-src</I></b > - path to the resource that represents the image (link to video, picture or book).
 
-Deleting an item:
+and may contain optional attributes:
+- <I > data-type</I > -this attribute can be used to specify an optional resource type if you want to divide resources by types.
+
+This creates <i>\<span></I> elements with the back attributes + by default, the <I>class</i> attribute is set to <I > img</i> the internal HTML code will be:
 
 ```
-deleteItem (index);
+<I class= "material-icons" >close</i>
 ```
 
-where <i> index </i> is the index of the item being deleted in the player.
+if you use the library [materializecss](https://materializecss.com), then such a markup element will add a player element delete button.
+
+The second parameter specifies whether to move to the added element of the same tale after adding or not.
+
+Delete items:
+
+```
+deleteItem(index);
+```
+
+where <I > index</i> is the index of the deleted item in the player.
 
 <br>
 
-If the unit processed by the module at the time of initialization of the player already contains images with the necessary attributes, they are automatically added to the player, except for those that contain the class specified by the <b> imageStopClass </b> player configuration (<i> IPlayerOptions </i>) , by default this is the <b> no-image </b> class.
+If supported by the module unit at the time of initialisatie player already contains the image with necessary attributes, they are automatically added to the player, with the exception of those that contain the class specified by the Directive <b>imageStopClass</b> configuration of the player (<i>IPlayerOptions</i>), the default class is <b>no-image</b>.
 
 <br>
 
-[Method documentation](docs_en)
+[Method documentation](docs_ru)
