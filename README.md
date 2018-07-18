@@ -2,6 +2,15 @@
 
 Viewer on pure JavaScript. At the moment it can display video, graphics and books in PDF format.
 
+#### Installation
+
+`
+composer reqire avtomon/player.js
+`
+<br>
+
+#### Description
+
 The module requires an HTML block with one of the predefined classes:
 - <b > video</b > - video player will be created;
 - <b > image</b > - image viewer;
@@ -101,6 +110,11 @@ where <I > index</i> is the index of the deleted item in the player.
 <br>
 
 If supported by the module unit at the time of initialisatie player already contains the image with necessary attributes, they are automatically added to the player, with the exception of those that contain the class specified by the Directive <b>imageStopClass</b> configuration of the player (<i>IPlayerOptions</i>), the default class is <b>no-image</b>.
+
+<br>
+
+<b > note:</b> 
+If you plan to develop the project yourself and build it with the <I>script build.sh</i> you will need to install < b>Gulp</b> and its plugins specified in the <I>script init.sh</i> in the global scope, and why run the <I>script init.sh</i> for linking. Or install all dependencies directly into the project.
 
 <br>
 
