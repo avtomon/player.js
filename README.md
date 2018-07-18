@@ -102,4 +102,6 @@ where <i> index </i> is the index of the item being deleted in the player.
 
 If the unit processed by the module at the time of initialization of the player already contains images with the necessary attributes, they are automatically added to the player, except for those that contain the class specified by the <b> imageStopClass </b> player configuration (<i> IPlayerOptions </i>) , by default this is the <b> no-image </b> class.
 
+<br>
+
 [Method documentation](docs_en)
