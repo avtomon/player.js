@@ -4,5 +4,14 @@
     "minimum-stability": "dev",
     "config": {
 	      "process-timeout": 1800
-    }
+    },
+    "require": {
+        "avtomon/GoodFuncs.js": "dev-master"
+    },
+    "repositories": [
+        {
+            "type": "git",
+            "url": "git@github.com:avtomon/GoodFuncs.js.git"
+        }
+    ]
 }

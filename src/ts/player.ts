@@ -83,6 +83,7 @@ namespace QooizPlayer {
             curImage.classList.add('current');
 
             for (let video of Array.from(mainWrapper.querySelectorAll('video'))) {
+                video = video as HTMLVideoElement;
                 if (video.src === videoSrc) {
                     video.style.display = 'block';
                     return video;
@@ -176,7 +177,7 @@ namespace QooizPlayer {
 
             let bookSrc: string | null = curImage.dataset.objectSrc,
                 imageSrc: string = curImage.dataset.src,
-                bookType = curImage.dataset.type || bookSrc.match(/.+?\.([^\.]+)$/)[1];
+                bookType = curImage.dataset.type || bookSrc.match(/.+?\.([^.]+)$/)[1];
 
             if (!bookSrc) {
                 let parched: string[] | null = imageSrc ? imageSrc.match(/^(.*?\/)image\/(\w+)/) : null;
@@ -223,7 +224,7 @@ namespace QooizPlayer {
         /**
          * Параметры конфигурации по умолчанию
          *
-         * @type {QooizPlayer.PlayerOptions}
+         * @type {IPlayerOptions}
          */
         public static defaultOptions: IPlayerOptions = {
             styleFilePath: 'player.css',
@@ -283,7 +284,7 @@ namespace QooizPlayer {
          * Конструктор
          *
          * @param {HTMLElement} element - на каком элементе загружается плеер
-         * @param {QooizPlayer.PlayerOptions} cnf - объект конфигурации
+         * @param {IPlayerOptions} cnf - объект конфигурации
          */
         public constructor(element: HTMLElement, cnf: IPlayerOptions = {}) {
 
@@ -318,7 +319,7 @@ namespace QooizPlayer {
 
                 this.type = 'video';
 
-            } else if ($(this).hasClass('image')) {
+            } else if (element.classList.contains('image')) {
 
                 this.render = function (curImage: HTMLElement) {
                     return Player.renderImage(this.mainWrapper, curImage);
@@ -326,7 +327,7 @@ namespace QooizPlayer {
 
                 this.type = 'image';
 
-            } else if ($(this).hasClass('book')) {
+            } else if (element.classList.contains('book')) {
 
                 this.render = function (curImage: HTMLElement) {
                     return Player.renderBook(this.mainWrapper, curImage);

@@ -1,102 +1,105 @@
-<a name="Player"></a>
+# Player.js
 
-## Player
-Просмотрщик на чистом JavaScript. На данный момент может отображать видео, графику и книги в формате PDF.
+A viewer in pure JavaScript. At the moment can display video, graphics and books in PDF format.
 
-**Kind**: global class  
+The module requires an HTML block with one of the predefined classes:
+- <b> video </b> - a video player will be created;
+- <b> image </b> - picture viewer;
+- <b> book </b> - PDF viewer
 
-* [Player](#Player)
-    * [new Player(element, cnf)](#new_Player_new)
-    * _instance_
-        * [.uniq](#Player+uniq)
-        * [.id](#Player+id) ⇒ <code>string</code>
-        * [.addItem(image, isActivate, sourceName)](#Player+addItem)
-        * [.deleteItem(index)](#Player+deleteItem)
-    * _static_
-        * [.renderVideo(mainWrapper, curImage)](#Player.renderVideo) ⇒ <code>HTMLVideoElement</code> \| <code>null</code>
-        * [.renderImage(mainWrapper, curImage)](#Player.renderImage) ⇒ <code>HTMLImageElement</code> \| <code>null</code>
-        * [.renderBook(mainWrapper, curImage)](#Player.renderBook) ⇒ <code>HTMLIFrameElement</code> \| <code>HTMLEmbedElement</code> \| <code>null</code>
+If there is such a block, then it is very simple to create a block:
 
-<a name="new_Player_new"></a>
+Suppose that such a block is:
 
-### new Player(element, cnf)
-Конструктор
+```
+<div class = "video"> </div>
+```
 
+then the code for creating the player object in the simplest case:
 
-| Param | Type | Description |
-| --- | --- | --- |
-| element | <code>HTMLElement</code> | на каком элементе загружается плеер |
-| cnf | <code>QooizPlayer.PlayerOptions</code> | объект конфигурации |
+```
+let player = new Player (document.querySelector ('div.video'));
+```
 
-<a name="Player+uniq"></a>
+The second parameter of the constructor can be a configuration object - an object that implements the following interface:
 
-### player.uniq
-Уникальный идентификатор плеера
+```
+interface IPlayerOptions {
 
-**Kind**: instance property of [<code>Player</code>](#Player)  
-<a name="Player+id"></a>
+/**
+* Path to the file with styles
+*/
+readonly styleFilePath ?: string;
 
-### player.id ⇒ <code>string</code>
-Геттер для уникального идентификатора плеера
+/**
+* Select the first item when the player is initialized
+*/
+readonly activate ?: boolean;
 
-**Kind**: instance property of [<code>Player</code>](#Player)  
-<a name="Player+addItem"></a>
+/**
+* Viewer class
+*/
+readonly mainWrapperClass ?: string;
 
-### player.addItem(image, isActivate, sourceName)
-Добавить изображение в плеер
+/**
+* Block class preview
+*/
+readonly imageWrapperClass ?: string;
 
-**Kind**: instance method of [<code>Player</code>](#Player)  
+/**
+* Width of the scroll buttons
+*/
+readonly scrollButtonsWidth ?: number;
 
-| Param | Type | Default | Description |
-| --- | --- | --- | --- |
-| image | <code>HTMLImageElement</code> |  | изображение |
-| isActivate | <code>boolean</code> | <code>false</code> | активировать добавляемое изображение |
-| sourceName | <code>string</code> |  | ссылка на альтернативный ресурс |
+/**
+* Accuracy of clicking on the scroll buttons
+*/
+readonly scrollButtonsPadding ?: number;
 
-<a name="Player+deleteItem"></a>
+/**
+* Images with this class are not loaded into the player
+*/
+readonly imageStopClass ?: string;
+}
+```
 
-### player.deleteItem(index)
-Удалить пару изображение - ресурс из плеера
+Each resource uploaded to the viewer has a preview in the form of an image. Actually, in the form of images in the player, new elements are added, and then converted into an internal format.
 
-**Kind**: instance method of [<code>Player</code>](#Player)  
+You can add items to the player in the following way:
 
-| Param | Type | Description |
-| --- | --- | --- |
-| index | <code>number</code> | индекс удаляемой сущность |
+```
+player.addItem (image, true);
+```
 
-<a name="Player.renderVideo"></a>
+Elements are always added as HTMLImageElement objects that must contain the required artibuts:
 
-### Player.renderVideo(mainWrapper, curImage) ⇒ <code>HTMLVideoElement</code> \| <code>null</code>
-Рендеринг видео в плеере
+- <i> src </i> - the path to the image;
+- <i> title </i> - the name of the downloadable resource;
+- <b> <i> data-object-src </i> </b> - the path to the resource that represents the image (link to video, image or book).
 
-**Kind**: static method of [<code>Player</code>](#Player)  
+and can contain optional attributes:
+- <i> data-type </i> - this attribute allows you to specify an optional resource type, if you want to somehow divide resources by type.
 
-| Param | Type | Description |
-| --- | --- | --- |
-| mainWrapper | <code>HTMLDivElement</code> | блок хранящий видео |
-| curImage | <code>HTMLSpanElement</code> | загружаемое изображение |
+This creates <i>\<span> </i> elements with backed attributes + by default the <i> class </i> attribute is set with the value <i> img </i> the internal HTML will be:
 
-<a name="Player.renderImage"></a>
+```
+<i class = "material-icons"> close </i>
+```
 
-### Player.renderImage(mainWrapper, curImage) ⇒ <code>HTMLImageElement</code> \| <code>null</code>
-Рендеринг изображения в плеере
+if you use the library [materializecss](https://materializecss.com), then such a markup element will add a button to remove the element of the player.
 
-**Kind**: static method of [<code>Player</code>](#Player)  
+The second parameter specifies whether to override the added element to the same tale after adding or not.
 
-| Param | Type | Description |
-| --- | --- | --- |
-| mainWrapper | <code>HTMLDivElement</code> | блок хранящий изображения |
-| curImage | <code>HTMLSpanElement</code> | загружаемое изображение |
+Deleting an item:
 
-<a name="Player.renderBook"></a>
+```
+deleteItem (index);
+```
 
-### Player.renderBook(mainWrapper, curImage) ⇒ <code>HTMLIFrameElement</code> \| <code>HTMLEmbedElement</code> \| <code>null</code>
-Рендеринг книги в плеере
+where <i> index </i> is the index of the item being deleted in the player.
 
-**Kind**: static method of [<code>Player</code>](#Player)  
+<br>
 
-| Param | Type | Description |
-| --- | --- | --- |
-| mainWrapper | <code>HTMLDivElement</code> | блок хранящий изображения |
-| curImage | <code>HTMLSpanElement</code> | загружаемое изображение |
+If the unit processed by the module at the time of initialization of the player already contains images with the necessary attributes, they are automatically added to the player, except for those that contain the class specified by the <b> imageStopClass </b> player configuration (<i> IPlayerOptions </i>) , by default this is the <b> no-image </b> class.
 
+[Method documentation](docs_en)

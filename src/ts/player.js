@@ -9,7 +9,7 @@ var QooizPlayer;
          * Конструктор
          *
          * @param {HTMLElement} element - на каком элементе загружается плеер
-         * @param {QooizPlayer.PlayerOptions} cnf - объект конфигурации
+         * @param {IPlayerOptions} cnf - объект конфигурации
          */
         constructor(element, cnf = {}) {
             /**
@@ -39,13 +39,13 @@ var QooizPlayer;
                 }.bind(this);
                 this.type = 'video';
             }
-            else if ($(this).hasClass('image')) {
+            else if (element.classList.contains('image')) {
                 this.render = function (curImage) {
                     return Player.renderImage(this.mainWrapper, curImage);
                 }.bind(this);
                 this.type = 'image';
             }
-            else if ($(this).hasClass('book')) {
+            else if (element.classList.contains('book')) {
                 this.render = function (curImage) {
                     return Player.renderBook(this.mainWrapper, curImage);
                 }.bind(this);
@@ -144,6 +144,7 @@ var QooizPlayer;
             });
             curImage.classList.add('current');
             for (let video of Array.from(mainWrapper.querySelectorAll('video'))) {
+                video = video;
                 if (video.src === videoSrc) {
                     video.style.display = 'block';
                     return video;
@@ -208,7 +209,7 @@ var QooizPlayer;
             if (curImage.classList.contains('current')) {
                 return null;
             }
-            let bookSrc = curImage.dataset.objectSrc, imageSrc = curImage.dataset.src, bookType = curImage.dataset.type || bookSrc.match(/.+?\.([^\.]+)$/)[1];
+            let bookSrc = curImage.dataset.objectSrc, imageSrc = curImage.dataset.src, bookType = curImage.dataset.type || bookSrc.match(/.+?\.([^.]+)$/)[1];
             if (!bookSrc) {
                 let parched = imageSrc ? imageSrc.match(/^(.*?\/)image\/(\w+)/) : null;
                 bookSrc = Array.isArray(parched) && bookType ? parched[1] + 'book/' + parched[2] + '.' + bookType : null;
@@ -292,7 +293,7 @@ var QooizPlayer;
     /**
      * Параметры конфигурации по умолчанию
      *
-     * @type {QooizPlayer.PlayerOptions}
+     * @type {IPlayerOptions}
      */
     Player.defaultOptions = {
         styleFilePath: 'player.css',
