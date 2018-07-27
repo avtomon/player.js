@@ -1,6 +1,8 @@
 "use strict";
 
-namespace QooizPlayer {
+import {Utils} from "../../../GoodFuncs.js/dist/GoodFuncs.js";
+
+export namespace QooizPlayer {
 
     /**
      * Интерфейс конфига плеера

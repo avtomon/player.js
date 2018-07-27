@@ -26,7 +26,7 @@
 | Param | Type | Description |
 | --- | --- | --- |
 | element | <code>HTMLElement</code> | на каком элементе загружается плеер |
-| cnf | <code>QooizPlayer.PlayerOptions</code> | объект конфигурации |
+| cnf | <code>IPlayerOptions</code> | объект конфигурации |
 
 <a name="Player+uniq"></a>
 
