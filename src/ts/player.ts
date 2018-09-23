@@ -1,6 +1,6 @@
 "use strict";
 
-import {Utils} from "../../../GoodFuncs.js/dist/GoodFuncs.js";
+import {Utils} from "../../../GoodFuncs.js/dist/js/GoodFuncs.js";
 
 export namespace QooizPlayer {
 
@@ -50,6 +50,24 @@ export namespace QooizPlayer {
      */
     export class Player implements IPlayerOptions {
 
+        protected static renderInit(mainWrapper: HTMLDivElement, curImage: HTMLSpanElement, selector: string): void
+        {
+            if (curImage.classList.contains('current')) {
+                return null;
+            }
+
+            mainWrapper.querySelectorAll(selector).forEach(function (element) {
+                let htmlElement: HTMLElement = element as HTMLElement;
+                htmlElement.style.display = 'none';
+            });
+
+            Array.from(curImage.parentElement.children).forEach(function (imageSpan) {
+                imageSpan.classList.remove('current')
+            });
+
+            curImage.classList.add('current');
+        }
+
         /**
          * Рендеринг видео в плеере
          *
@@ -60,9 +78,7 @@ export namespace QooizPlayer {
          */
         protected static renderVideo(mainWrapper: HTMLDivElement, curImage: HTMLSpanElement): HTMLVideoElement | null {
 
-            if (curImage.classList.contains('current')) {
-                return null;
-            }
+            Player.renderInit(mainWrapper, curImage, 'video');
 
             let videoSrc: string = curImage.dataset.objectSrc,
                 imageSrc = curImage.dataset.src;
@@ -75,14 +91,6 @@ export namespace QooizPlayer {
             if (!videoSrc) {
                 return null;
             }
-
-            (mainWrapper.querySelector('video:visible') as HTMLVideoElement).style.display = 'none';
-
-            Array.from(curImage.parentElement.children).forEach(function (imageSpan) {
-                imageSpan.classList.remove('current')
-            });
-
-            curImage.classList.add('current');
 
             for (let video of Array.from(mainWrapper.querySelectorAll('video'))) {
                 video = video as HTMLVideoElement;
@@ -127,17 +135,7 @@ export namespace QooizPlayer {
          */
         protected static renderImage(mainWrapper: HTMLDivElement, curImage: HTMLSpanElement): HTMLImageElement | null {
 
-            if (curImage.classList.contains('current')) {
-                return null;
-            }
-
-            (mainWrapper.querySelector('img:visible') as HTMLImageElement).style.display = 'none';
-
-            Array.from(curImage.parentElement.children).forEach(function (imageSpan) {
-                imageSpan.classList.remove('current')
-            });
-
-            curImage.classList.add('current');
+            Player.renderInit(mainWrapper, curImage, 'img');
 
             let imageSrc = curImage.dataset.src;
 
@@ -173,9 +171,7 @@ export namespace QooizPlayer {
          */
         protected static renderBook(mainWrapper: HTMLDivElement, curImage: HTMLSpanElement): HTMLIFrameElement | HTMLEmbedElement | null {
 
-            if (curImage.classList.contains('current')) {
-                return null;
-            }
+            Player.renderInit(mainWrapper, curImage, 'iframe, embed');
 
             let bookSrc: string | null = curImage.dataset.objectSrc,
                 imageSrc: string = curImage.dataset.src,
@@ -189,14 +185,6 @@ export namespace QooizPlayer {
             if (!bookSrc || !bookType) {
                 return null;
             }
-
-            (mainWrapper.querySelector('iframe:visible, embed:visible') as HTMLElement).style.display = 'none';
-
-            Array.from(curImage.parentElement.children).forEach(function (imageSpan) {
-                imageSpan.classList.remove('current')
-            });
-
-            curImage.classList.add('current');
 
             for (let book of Array.from(mainWrapper.querySelectorAll('embed, iframe'))) {
 
@@ -303,8 +291,8 @@ export namespace QooizPlayer {
             element.insertAdjacentHTML('beforeend', `<div class="${this.mainWrapperClass}"></div>`);
             element.insertAdjacentHTML('beforeend', `<div class="${this.imageWrapperClass}"></div>`);
 
-            this.imageWrapper = element.querySelector(this.imageWrapperClass);
-            this.mainWrapper = element.querySelector(this.mainWrapperClass);
+            this.imageWrapper = element.querySelector(`.${this.imageWrapperClass}`);
+            this.mainWrapper = element.querySelector(`.${this.mainWrapperClass}`);
 
             this.imageWrapper.classList.add(this.uniq);
 
@@ -363,7 +351,7 @@ export namespace QooizPlayer {
             firstImage.classList.add('first');
 
             if (this.activate) {
-                firstImage.dispatchEvent(new Event('click'));
+                firstImage.dispatchEvent(new Event('click', {bubbles: true}));
             }
 
             let imageWrapperSelector = '.' + this.uniq,

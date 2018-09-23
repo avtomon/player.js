@@ -1,5 +1,5 @@
 "use strict";
-import { Utils } from "../../../GoodFuncs.js/dist/GoodFuncs.js";
+import { Utils } from "../../../GoodFuncs.js/dist/js/GoodFuncs.js";
 export var QooizPlayer;
 (function (QooizPlayer) {
     /**
@@ -27,8 +27,8 @@ export var QooizPlayer;
             element.classList.add('player');
             element.insertAdjacentHTML('beforeend', `<div class="${this.mainWrapperClass}"></div>`);
             element.insertAdjacentHTML('beforeend', `<div class="${this.imageWrapperClass}"></div>`);
-            this.imageWrapper = element.querySelector(this.imageWrapperClass);
-            this.mainWrapper = element.querySelector(this.mainWrapperClass);
+            this.imageWrapper = element.querySelector(`.${this.imageWrapperClass}`);
+            this.mainWrapper = element.querySelector(`.${this.mainWrapperClass}`);
             this.imageWrapper.classList.add(this.uniq);
             element.querySelectorAll(`img:not(.${this.imageStopClass})`).forEach(function (image) {
                 this.addItem(image);
@@ -70,7 +70,7 @@ export var QooizPlayer;
             let firstImage = this.imageWrapper.querySelector('.img');
             firstImage.classList.add('first');
             if (this.activate) {
-                firstImage.dispatchEvent(new Event('click'));
+                firstImage.dispatchEvent(new Event('click', { bubbles: true }));
             }
             let imageWrapperSelector = '.' + this.uniq, playerSliderPseudoBefore = Utils.GoodFuncs.pseudo(this.styleFilePath, imageWrapperSelector + ':before'), playerSliderPseudoAfter = Utils.GoodFuncs.pseudo(this.styleFilePath, imageWrapperSelector + ':after');
             this.imageWrapper.addEventListener('click', function (e) {
@@ -119,6 +119,19 @@ export var QooizPlayer;
                 this.dispatchEvent(new CustomEvent('click', { detail: { offset: this.clientWidth } }));
             });
         }
+        static renderInit(mainWrapper, curImage, selector) {
+            if (curImage.classList.contains('current')) {
+                return null;
+            }
+            mainWrapper.querySelectorAll(selector).forEach(function (element) {
+                let htmlElement = element;
+                htmlElement.style.display = 'none';
+            });
+            Array.from(curImage.parentElement.children).forEach(function (imageSpan) {
+                imageSpan.classList.remove('current');
+            });
+            curImage.classList.add('current');
+        }
         /**
          * Рендеринг видео в плеере
          *
@@ -128,9 +141,7 @@ export var QooizPlayer;
          * @returns {HTMLVideoElement | null}
          */
         static renderVideo(mainWrapper, curImage) {
-            if (curImage.classList.contains('current')) {
-                return null;
-            }
+            Player.renderInit(mainWrapper, curImage, 'video');
             let videoSrc = curImage.dataset.objectSrc, imageSrc = curImage.dataset.src;
             if (!videoSrc) {
                 let parched = imageSrc ? imageSrc.match(/^(.*?\/)image\/(\w+)/) : null;
@@ -139,11 +150,6 @@ export var QooizPlayer;
             if (!videoSrc) {
                 return null;
             }
-            mainWrapper.querySelector('video:visible').style.display = 'none';
-            Array.from(curImage.parentElement.children).forEach(function (imageSpan) {
-                imageSpan.classList.remove('current');
-            });
-            curImage.classList.add('current');
             for (let video of Array.from(mainWrapper.querySelectorAll('video'))) {
                 video = video;
                 if (video.src === videoSrc) {
@@ -176,14 +182,7 @@ export var QooizPlayer;
          * @returns {HTMLImageElement | null}
          */
         static renderImage(mainWrapper, curImage) {
-            if (curImage.classList.contains('current')) {
-                return null;
-            }
-            mainWrapper.querySelector('img:visible').style.display = 'none';
-            Array.from(curImage.parentElement.children).forEach(function (imageSpan) {
-                imageSpan.classList.remove('current');
-            });
-            curImage.classList.add('current');
+            Player.renderInit(mainWrapper, curImage, 'img');
             let imageSrc = curImage.dataset.src;
             for (let image of Array.from(mainWrapper.querySelectorAll('img'))) {
                 if (image.src === imageSrc) {
@@ -207,9 +206,7 @@ export var QooizPlayer;
          * @returns {HTMLIFrameElement | HTMLEmbedElement | null}
          */
         static renderBook(mainWrapper, curImage) {
-            if (curImage.classList.contains('current')) {
-                return null;
-            }
+            Player.renderInit(mainWrapper, curImage, 'iframe, embed');
             let bookSrc = curImage.dataset.objectSrc, imageSrc = curImage.dataset.src, bookType = curImage.dataset.type || bookSrc.match(/.+?\.([^.]+)$/)[1];
             if (!bookSrc) {
                 let parched = imageSrc ? imageSrc.match(/^(.*?\/)image\/(\w+)/) : null;
@@ -218,11 +215,6 @@ export var QooizPlayer;
             if (!bookSrc || !bookType) {
                 return null;
             }
-            mainWrapper.querySelector('iframe:visible, embed:visible').style.display = 'none';
-            Array.from(curImage.parentElement.children).forEach(function (imageSpan) {
-                imageSpan.classList.remove('current');
-            });
-            curImage.classList.add('current');
             for (let book of Array.from(mainWrapper.querySelectorAll('embed, iframe'))) {
                 if (book['src'] === book) {
                     book['style'].display = 'block';
