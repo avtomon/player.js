@@ -1,5 +1,5 @@
 {
-    "name": "avtomon/Player.js",
+    "name": "avtomon/player.js",
     "description": "TypeScript/JavaScript player",
     "require": {
         "avtomon/good-funcs.js": "dev-master"
