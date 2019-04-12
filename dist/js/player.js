@@ -1,5 +1,5 @@
 "use strict";
-import { Utils } from "../../../GoodFuncs.js/dist/js/GoodFuncs.js";
+import { Utils } from "../../../good-funcs.js/dist/js/GoodFuncs.js";
 export var QooizPlayer;
 (function (QooizPlayer) {
     /**
@@ -17,18 +17,23 @@ export var QooizPlayer;
              * Уникальный идентификатор плеера
              */
             this.uniq = Utils.GoodFuncs.getRandomString(12);
-            this.styleFilePath = cnf.styleFilePath || Player.defaultOptions.styleFilePath;
-            this.activate = cnf.activate !== undefined ? cnf.activate : Player.defaultOptions.activate;
-            this.mainWrapperClass = cnf.mainWrapperClass || Player.defaultOptions.mainWrapperClass;
-            this.imageWrapperClass = cnf.imageWrapperClass || Player.defaultOptions.imageWrapperClass;
-            this.scrollButtonsWidth = cnf.scrollButtonsWidth || Player.defaultOptions.scrollButtonsWidth;
-            this.scrollButtonsPadding = cnf.scrollButtonsPadding || Player.defaultOptions.scrollButtonsPadding;
-            this.imageStopClass = cnf.imageStopClass || Player.defaultOptions.imageStopClass;
+            this.styleFilePath = (cnf.styleFilePath || Player.defaultOptions.styleFilePath);
+            this.activate = (cnf.activate !== undefined ? cnf.activate : Player.defaultOptions.activate);
+            this.mainWrapperClass = (cnf.mainWrapperClass || Player.defaultOptions.mainWrapperClass);
+            this.imageWrapperClass = (cnf.imageWrapperClass || Player.defaultOptions.imageWrapperClass);
+            this.scrollButtonsWidth = (cnf.scrollButtonsWidth || Player.defaultOptions.scrollButtonsWidth);
+            this.scrollButtonsPadding
+                = (cnf.scrollButtonsPadding || Player.defaultOptions.scrollButtonsPadding);
+            this.imageStopClass = (cnf.imageStopClass || Player.defaultOptions.imageStopClass);
             element.classList.add('player');
             element.insertAdjacentHTML('beforeend', `<div class="${this.mainWrapperClass}"></div>`);
             element.insertAdjacentHTML('beforeend', `<div class="${this.imageWrapperClass}"></div>`);
-            this.imageWrapper = element.querySelector(`.${this.imageWrapperClass}`);
-            this.mainWrapper = element.querySelector(`.${this.mainWrapperClass}`);
+            const imageWrapper = element.querySelector(`.${this.imageWrapperClass}`), mainWrapper = element.querySelector(`.${this.mainWrapperClass}`);
+            if (!imageWrapper || !mainWrapper) {
+                throw new Error('Wrapper not found');
+            }
+            this.imageWrapper = imageWrapper;
+            this.mainWrapper = mainWrapper;
             this.imageWrapper.classList.add(this.uniq);
             element.querySelectorAll(`img:not(.${this.imageStopClass})`).forEach(function (image) {
                 this.addItem(image);
@@ -68,6 +73,9 @@ export var QooizPlayer;
                 e.stopPropagation();
             }.bind(this));
             let firstImage = this.imageWrapper.querySelector('.img');
+            if (!firstImage) {
+                return;
+            }
             firstImage.classList.add('first');
             if (this.activate) {
                 firstImage.dispatchEvent(new Event('click', { bubbles: true }));
@@ -86,6 +94,9 @@ export var QooizPlayer;
                     return false;
                 }
                 let first = this.imageWrapper.querySelector('.img');
+                if (!first) {
+                    return;
+                }
                 first.classList.remove('first');
                 if (offset <= this.scrollButtonsWidth) {
                     Utils.GoodFuncs.prev(first, '.img').classList.add('first');
@@ -121,15 +132,17 @@ export var QooizPlayer;
         }
         static renderInit(mainWrapper, curImage, selector) {
             if (curImage.classList.contains('current')) {
-                return null;
+                return;
             }
             mainWrapper.querySelectorAll(selector).forEach(function (element) {
                 let htmlElement = element;
                 htmlElement.style.display = 'none';
             });
-            Array.from(curImage.parentElement.children).forEach(function (imageSpan) {
-                imageSpan.classList.remove('current');
-            });
+            if (curImage.parentElement) {
+                Array.from(curImage.parentElement.children).forEach(function (imageSpan) {
+                    imageSpan.classList.remove('current');
+                });
+            }
             curImage.classList.add('current');
         }
         /**
@@ -142,10 +155,10 @@ export var QooizPlayer;
          */
         static renderVideo(mainWrapper, curImage) {
             Player.renderInit(mainWrapper, curImage, 'video');
-            let videoSrc = curImage.dataset.objectSrc, imageSrc = curImage.dataset.src;
+            let videoSrc = curImage.dataset.objectSrc || '', imageSrc = curImage.dataset.src;
             if (!videoSrc) {
                 let parched = imageSrc ? imageSrc.match(/^(.*?\/)image\/(\w+)/) : null;
-                videoSrc = Array.isArray(parched) ? parched[1] + 'video/' + parched[2] + '.mp4' : null;
+                videoSrc = Array.isArray(parched) ? parched[1] + 'video/' + parched[2] + '.mp4' : '';
             }
             if (!videoSrc) {
                 return null;
@@ -207,10 +220,10 @@ export var QooizPlayer;
          */
         static renderBook(mainWrapper, curImage) {
             Player.renderInit(mainWrapper, curImage, 'iframe, embed');
-            let bookSrc = curImage.dataset.objectSrc, imageSrc = curImage.dataset.src, bookType = curImage.dataset.type || bookSrc.match(/.+?\.([^.]+)$/)[1];
+            let bookSrc = curImage.dataset.objectSrc || '', imageSrc = curImage.dataset.src || '', bookSrcMatches = bookSrc.match(/.+?\.([^.]+)$/), bookType = curImage.dataset.type || (bookSrcMatches ? bookSrcMatches[1] : '');
             if (!bookSrc) {
                 let parched = imageSrc ? imageSrc.match(/^(.*?\/)image\/(\w+)/) : null;
-                bookSrc = Array.isArray(parched) && bookType ? parched[1] + 'book/' + parched[2] + '.' + bookType : null;
+                bookSrc = Array.isArray(parched) && bookType ? parched[1] + 'book/' + parched[2] + '.' + bookType : '';
             }
             if (!bookSrc || !bookType) {
                 return null;
@@ -271,9 +284,13 @@ export var QooizPlayer;
          * @param {number} index - индекс удаляемой сущность
          */
         deleteItem(index) {
-            let images = Array.from(this.imageWrapper.querySelectorAll('.img')), image = images[index], src = image.dataset.objectSrc;
-            image.remove();
-            this.mainWrapper.querySelector('*[src="' + src + '"]').remove();
+            let images = Array.from(this.imageWrapper.querySelectorAll('.img')), image = images[index], src = image.dataset.objectSrc, obj = this.mainWrapper.querySelector('*[src="' + src + '"]');
+            if (image) {
+                image.remove();
+            }
+            if (obj) {
+                obj.remove();
+            }
             images[index + 1].dispatchEvent(new Event('click'));
             this.imageWrapper.dispatchEvent(new CustomEvent('deleteItem', {
                 detail: {

@@ -1,6 +1,6 @@
 "use strict";
 
-import {Utils} from "../../../GoodFuncs.js/dist/js/GoodFuncs.js";
+import {Utils} from "../../../good-funcs.js/dist/js/GoodFuncs.js";
 
 export namespace QooizPlayer {
 
@@ -50,10 +50,9 @@ export namespace QooizPlayer {
      */
     export class Player implements IPlayerOptions {
 
-        protected static renderInit(mainWrapper: HTMLDivElement, curImage: HTMLSpanElement, selector: string): void
-        {
+        protected static renderInit(mainWrapper: HTMLDivElement, curImage: HTMLSpanElement, selector: string): void {
             if (curImage.classList.contains('current')) {
-                return null;
+                return;
             }
 
             mainWrapper.querySelectorAll(selector).forEach(function (element) {
@@ -61,9 +60,11 @@ export namespace QooizPlayer {
                 htmlElement.style.display = 'none';
             });
 
-            Array.from(curImage.parentElement.children).forEach(function (imageSpan) {
-                imageSpan.classList.remove('current')
-            });
+            if (curImage.parentElement) {
+                Array.from(curImage.parentElement.children).forEach(function (imageSpan) {
+                    imageSpan.classList.remove('current')
+                });
+            }
 
             curImage.classList.add('current');
         }
@@ -80,12 +81,12 @@ export namespace QooizPlayer {
 
             Player.renderInit(mainWrapper, curImage, 'video');
 
-            let videoSrc: string = curImage.dataset.objectSrc,
+            let videoSrc: string = curImage.dataset.objectSrc || '',
                 imageSrc = curImage.dataset.src;
 
             if (!videoSrc) {
                 let parched: string[] | null = imageSrc ? imageSrc.match(/^(.*?\/)image\/(\w+)/) : null;
-                videoSrc = Array.isArray(parched) ? parched[1] + 'video/' + parched[2] + '.mp4' : null;
+                videoSrc = Array.isArray(parched) ? parched[1] + 'video/' + parched[2] + '.mp4' : '';
             }
 
             if (!videoSrc) {
@@ -169,17 +170,21 @@ export namespace QooizPlayer {
          *
          * @returns {HTMLIFrameElement | HTMLEmbedElement | null}
          */
-        protected static renderBook(mainWrapper: HTMLDivElement, curImage: HTMLSpanElement): HTMLIFrameElement | HTMLEmbedElement | null {
+        protected static renderBook(
+            mainWrapper: HTMLDivElement,
+            curImage: HTMLSpanElement
+        ): HTMLIFrameElement | HTMLEmbedElement | null | undefined {
 
             Player.renderInit(mainWrapper, curImage, 'iframe, embed');
 
-            let bookSrc: string | null = curImage.dataset.objectSrc,
-                imageSrc: string = curImage.dataset.src,
-                bookType = curImage.dataset.type || bookSrc.match(/.+?\.([^.]+)$/)[1];
+            let bookSrc: string = curImage.dataset.objectSrc || '',
+                imageSrc: string = curImage.dataset.src || '',
+                bookSrcMatches: RegExpMatchArray | null = bookSrc.match(/.+?\.([^.]+)$/),
+                bookType = curImage.dataset.type || (bookSrcMatches ? bookSrcMatches[1] : '');
 
             if (!bookSrc) {
                 let parched: string[] | null = imageSrc ? imageSrc.match(/^(.*?\/)image\/(\w+)/) : null;
-                bookSrc = Array.isArray(parched) && bookType ? parched[1] + 'book/' + parched[2] + '.' + bookType : null;
+                bookSrc = Array.isArray(parched) && bookType ? parched[1] + 'book/' + parched[2] + '.' + bookType : '';
             }
 
             if (!bookSrc || !bookType) {
@@ -278,21 +283,29 @@ export namespace QooizPlayer {
          */
         public constructor(element: HTMLElement, cnf: IPlayerOptions = {}) {
 
-            this.styleFilePath = cnf.styleFilePath || Player.defaultOptions.styleFilePath;
-            this.activate = cnf.activate !== undefined ? cnf.activate : Player.defaultOptions.activate;
-            this.mainWrapperClass = cnf.mainWrapperClass || Player.defaultOptions.mainWrapperClass;
-            this.imageWrapperClass = cnf.imageWrapperClass || Player.defaultOptions.imageWrapperClass;
-            this.scrollButtonsWidth = cnf.scrollButtonsWidth || Player.defaultOptions.scrollButtonsWidth;
-            this.scrollButtonsPadding = cnf.scrollButtonsPadding || Player.defaultOptions.scrollButtonsPadding;
-            this.imageStopClass = cnf.imageStopClass || Player.defaultOptions.imageStopClass;
+            this.styleFilePath = (cnf.styleFilePath || Player.defaultOptions.styleFilePath) as string;
+            this.activate = (cnf.activate !== undefined ? cnf.activate : Player.defaultOptions.activate) as boolean;
+            this.mainWrapperClass = (cnf.mainWrapperClass || Player.defaultOptions.mainWrapperClass) as string;
+            this.imageWrapperClass = (cnf.imageWrapperClass || Player.defaultOptions.imageWrapperClass) as string;
+            this.scrollButtonsWidth = (cnf.scrollButtonsWidth || Player.defaultOptions.scrollButtonsWidth) as number;
+            this.scrollButtonsPadding
+                = (cnf.scrollButtonsPadding || Player.defaultOptions.scrollButtonsPadding) as number;
+            this.imageStopClass = (cnf.imageStopClass || Player.defaultOptions.imageStopClass) as string;
 
             element.classList.add('player');
 
             element.insertAdjacentHTML('beforeend', `<div class="${this.mainWrapperClass}"></div>`);
             element.insertAdjacentHTML('beforeend', `<div class="${this.imageWrapperClass}"></div>`);
 
-            this.imageWrapper = element.querySelector(`.${this.imageWrapperClass}`);
-            this.mainWrapper = element.querySelector(`.${this.mainWrapperClass}`);
+            const imageWrapper: HTMLDivElement | null = element.querySelector(`.${this.imageWrapperClass}`),
+                mainWrapper: HTMLDivElement | null = element.querySelector(`.${this.mainWrapperClass}`);
+
+            if (!imageWrapper || !mainWrapper) {
+                throw new Error('Wrapper not found');
+            }
+
+            this.imageWrapper = imageWrapper;
+            this.mainWrapper = mainWrapper;
 
             this.imageWrapper.classList.add(this.uniq);
 
@@ -336,7 +349,7 @@ export namespace QooizPlayer {
                 this.render(target);
             }.bind(this));
 
-            this.imageWrapper.addEventListener('click', function(e) {
+            this.imageWrapper.addEventListener('click', function (e) {
 
                 let target: HTMLElement = Utils.GoodFuncs.getDelegateTarget(e, '.img > i');
                 if (!target) {
@@ -347,7 +360,11 @@ export namespace QooizPlayer {
                 e.stopPropagation();
             }.bind(this));
 
-            let firstImage = this.imageWrapper.querySelector('.img');
+            let firstImage: HTMLSpanElement | null = this.imageWrapper.querySelector('.img');
+            if (!firstImage) {
+                return;
+            }
+
             firstImage.classList.add('first');
 
             if (this.activate) {
@@ -378,7 +395,11 @@ export namespace QooizPlayer {
                     return false;
                 }
 
-                let first: HTMLElement = this.imageWrapper.querySelector('.img');
+                let first: HTMLElement | null = this.imageWrapper.querySelector('.img');
+                if (!first) {
+                    return;
+                }
+
                 first.classList.remove('first');
 
                 if (offset <= this.scrollButtonsWidth) {
@@ -409,7 +430,7 @@ export namespace QooizPlayer {
                 playerSliderPseudoAfter({left: 'calc(100% + ' + scroll + 'px) !important'});
             }.bind(this));
 
-            this.imageWrapper.addEventListener('wheel', function (e: WheelEvent ) {
+            this.imageWrapper.addEventListener('wheel', function (e: WheelEvent) {
                 if (this.getAttribute('disabled')) {
                     return;
                 }
@@ -473,11 +494,16 @@ export namespace QooizPlayer {
         public deleteItem(index: number) {
 
             let images: HTMLSpanElement[] = Array.from(this.imageWrapper.querySelectorAll('.img')),
-                image: HTMLSpanElement = images[index],
-                src = image.dataset.objectSrc;
+                image: HTMLSpanElement | null = images[index],
+                src = image.dataset.objectSrc,
+                obj: HTMLElement | null = this.mainWrapper.querySelector('*[src="' + src + '"]');
 
-            image.remove();
-            this.mainWrapper.querySelector('*[src="' + src + '"]').remove();
+            if (image) {
+                image.remove();
+            }
+            if (obj) {
+                obj.remove();
+            }
 
             images[index + 1].dispatchEvent(new Event('click'));
 
