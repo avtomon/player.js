@@ -36,6 +36,13 @@ export declare namespace QooizPlayer {
      * Просмотрщик на чистом JavaScript. На данный момент может отображать видео, графику и книги в формате PDF.
      */
     class Player implements IPlayerOptions {
+        /**
+         * Начало рендеринга
+         *
+         * @param {HTMLDivElement} mainWrapper
+         * @param {HTMLSpanElement} curImage
+         * @param {string} selector
+         */
         protected static renderInit(mainWrapper: HTMLDivElement, curImage: HTMLSpanElement, selector: string): void;
         /**
          * Рендеринг видео в плеере

@@ -12,37 +12,37 @@ export namespace QooizPlayer {
         /**
          * Путь к файлу со стилями
          */
-        readonly styleFilePath?: string;
+        readonly styleFilePath? : string;
 
         /**
          * Выбирать первый элемент при инициализации плеера
          */
-        readonly activate?: boolean;
+        readonly activate? : boolean;
 
         /**
          * Класс блока просмотра
          */
-        readonly mainWrapperClass?: string;
+        readonly mainWrapperClass? : string;
 
         /**
          * Класс блока превью
          */
-        readonly imageWrapperClass?: string;
+        readonly imageWrapperClass? : string;
 
         /**
          * Ширина кпопок прокрутки
          */
-        readonly scrollButtonsWidth?: number;
+        readonly scrollButtonsWidth? : number;
 
         /**
          * Погрешность клика по кнопкам прокрутки
          */
-        readonly scrollButtonsPadding?: number;
+        readonly scrollButtonsPadding? : number;
 
         /**
          * Изображения с этим классом не загружаются в плеер
          */
-        readonly imageStopClass?: string;
+        readonly imageStopClass? : string;
     }
 
     /**
@@ -50,13 +50,20 @@ export namespace QooizPlayer {
      */
     export class Player implements IPlayerOptions {
 
-        protected static renderInit(mainWrapper: HTMLDivElement, curImage: HTMLSpanElement, selector: string): void {
+        /**
+         * Начало рендеринга
+         *
+         * @param {HTMLDivElement} mainWrapper
+         * @param {HTMLSpanElement} curImage
+         * @param {string} selector
+         */
+        protected static renderInit(mainWrapper : HTMLDivElement, curImage : HTMLSpanElement, selector : string) : void {
             if (curImage.classList.contains('current')) {
                 return;
             }
 
             mainWrapper.querySelectorAll(selector).forEach(function (element) {
-                let htmlElement: HTMLElement = element as HTMLElement;
+                let htmlElement : HTMLElement = element as HTMLElement;
                 htmlElement.style.display = 'none';
             });
 
@@ -77,15 +84,15 @@ export namespace QooizPlayer {
          *
          * @returns {HTMLVideoElement | null}
          */
-        protected static renderVideo(mainWrapper: HTMLDivElement, curImage: HTMLSpanElement): HTMLVideoElement | null {
+        protected static renderVideo(mainWrapper : HTMLDivElement, curImage : HTMLSpanElement) : HTMLVideoElement | null {
 
             Player.renderInit(mainWrapper, curImage, 'video');
 
-            let videoSrc: string = curImage.dataset.objectSrc || '',
+            let videoSrc : string = curImage.dataset.objectSrc || '',
                 imageSrc = curImage.dataset.src;
 
             if (!videoSrc) {
-                let parched: string[] | null = imageSrc ? imageSrc.match(/^(.*?\/)image\/(\w+)/) : null;
+                let parched : string[] | null = imageSrc ? imageSrc.match(/^(.*?\/)image\/(\w+)/) : null;
                 videoSrc = Array.isArray(parched) ? parched[1] + 'video/' + parched[2] + '.mp4' : '';
             }
 
@@ -101,7 +108,7 @@ export namespace QooizPlayer {
                 }
             }
 
-            let video: HTMLVideoElement = Utils.GoodFuncs.createElementWithAttrs(
+            let video : HTMLVideoElement = Utils.GoodFuncs.createElementWithAttrs(
                 'video',
                 {
                     src: videoSrc,
@@ -134,7 +141,7 @@ export namespace QooizPlayer {
          *
          * @returns {HTMLImageElement | null}
          */
-        protected static renderImage(mainWrapper: HTMLDivElement, curImage: HTMLSpanElement): HTMLImageElement | null {
+        protected static renderImage(mainWrapper : HTMLDivElement, curImage : HTMLSpanElement) : HTMLImageElement | null {
 
             Player.renderInit(mainWrapper, curImage, 'img');
 
@@ -171,19 +178,19 @@ export namespace QooizPlayer {
          * @returns {HTMLIFrameElement | HTMLEmbedElement | null}
          */
         protected static renderBook(
-            mainWrapper: HTMLDivElement,
-            curImage: HTMLSpanElement
-        ): HTMLIFrameElement | HTMLEmbedElement | null | undefined {
+            mainWrapper : HTMLDivElement,
+            curImage : HTMLSpanElement
+        ) : HTMLIFrameElement | HTMLEmbedElement | null | undefined {
 
             Player.renderInit(mainWrapper, curImage, 'iframe, embed');
 
-            let bookSrc: string = curImage.dataset.objectSrc || '',
-                imageSrc: string = curImage.dataset.src || '',
-                bookSrcMatches: RegExpMatchArray | null = bookSrc.match(/.+?\.([^.]+)$/),
+            let bookSrc : string = curImage.dataset.objectSrc || '',
+                imageSrc : string = curImage.dataset.src || '',
+                bookSrcMatches : RegExpMatchArray | null = bookSrc.match(/.+?\.([^.]+)$/),
                 bookType = curImage.dataset.type || (bookSrcMatches ? bookSrcMatches[1] : '');
 
             if (!bookSrc) {
-                let parched: string[] | null = imageSrc ? imageSrc.match(/^(.*?\/)image\/(\w+)/) : null;
+                let parched : string[] | null = imageSrc ? imageSrc.match(/^(.*?\/)image\/(\w+)/) : null;
                 bookSrc = Array.isArray(parched) && bookType ? parched[1] + 'book/' + parched[2] + '.' + bookType : '';
             }
 
@@ -221,7 +228,7 @@ export namespace QooizPlayer {
          *
          * @type {IPlayerOptions}
          */
-        public static defaultOptions: IPlayerOptions = {
+        public static defaultOptions : IPlayerOptions = {
             styleFilePath: 'player.css',
             activate: true,
             mainWrapperClass: 'main-wrapper',
@@ -231,49 +238,49 @@ export namespace QooizPlayer {
             imageStopClass: 'no-image'
         };
 
-        public readonly styleFilePath: string;
+        public readonly styleFilePath : string;
 
-        public readonly activate: boolean;
+        public readonly activate : boolean;
 
-        public readonly mainWrapperClass: string;
+        public readonly mainWrapperClass : string;
 
-        public readonly imageWrapperClass: string;
+        public readonly imageWrapperClass : string;
 
-        public readonly scrollButtonsWidth: number;
+        public readonly scrollButtonsWidth : number;
 
-        public readonly scrollButtonsPadding: number;
+        public readonly scrollButtonsPadding : number;
 
-        public readonly imageStopClass: string;
+        public readonly imageStopClass : string;
 
         /**
          * Обработчик добавления новой сущности
          */
-        protected readonly render: (curImage: HTMLElement) => HTMLElement | null;
+        protected readonly render : (curImage : HTMLElement) => HTMLElement | null;
 
         /**
          * Уникальный идентификатор плеера
          */
-        protected readonly uniq: string = Utils.GoodFuncs.getRandomString(12);
+        protected readonly uniq : string = Utils.GoodFuncs.getRandomString(12);
 
         /**
          * Блок просмотра
          */
-        public readonly mainWrapper: HTMLDivElement;
+        public readonly mainWrapper : HTMLDivElement;
 
         /**
          * Блок превью
          */
-        public readonly imageWrapper: HTMLDivElement;
+        public readonly imageWrapper : HTMLDivElement;
 
         /**
          * Тип плеера
          */
-        public readonly type: 'video' | 'image' | 'book';
+        public readonly type : 'video' | 'image' | 'book';
 
         /**
          * На каком элементе загружается плеер
          */
-        public readonly element: HTMLElement;
+        public readonly element : HTMLElement;
 
         /**
          * Конструктор
@@ -281,7 +288,7 @@ export namespace QooizPlayer {
          * @param {HTMLElement} element - на каком элементе загружается плеер
          * @param {IPlayerOptions} cnf - объект конфигурации
          */
-        public constructor(element: HTMLElement, cnf: IPlayerOptions = {}) {
+        public constructor(element : HTMLElement, cnf : IPlayerOptions = {}) {
 
             this.styleFilePath = (cnf.styleFilePath || Player.defaultOptions.styleFilePath) as string;
             this.activate = (cnf.activate !== undefined ? cnf.activate : Player.defaultOptions.activate) as boolean;
@@ -297,8 +304,8 @@ export namespace QooizPlayer {
             element.insertAdjacentHTML('beforeend', `<div class="${this.mainWrapperClass}"></div>`);
             element.insertAdjacentHTML('beforeend', `<div class="${this.imageWrapperClass}"></div>`);
 
-            const imageWrapper: HTMLDivElement | null = element.querySelector(`.${this.imageWrapperClass}`),
-                mainWrapper: HTMLDivElement | null = element.querySelector(`.${this.mainWrapperClass}`);
+            const imageWrapper : HTMLDivElement | null = element.querySelector(`.${this.imageWrapperClass}`),
+                mainWrapper : HTMLDivElement | null = element.querySelector(`.${this.mainWrapperClass}`);
 
             if (!imageWrapper || !mainWrapper) {
                 throw new Error('Wrapper not found');
@@ -309,14 +316,18 @@ export namespace QooizPlayer {
 
             this.imageWrapper.classList.add(this.uniq);
 
-            element.querySelectorAll(`img:not(.${this.imageStopClass})`).forEach(function (this: Player, image: HTMLImageElement) {
+            element.querySelectorAll(`img:not(.${this.imageStopClass})`).forEach(function (this : Player, image : HTMLImageElement) {
                 this.addItem(image);
                 image.remove();
             }, this);
 
+            const emptyPlayerImage = element.querySelector(`img.${this.imageStopClass}`) as HTMLImageElement,
+                emptyPlayerImageDisplay = emptyPlayerImage.style.display;
+
             if (element.classList.contains('video')) {
 
-                this.render = function (curImage: HTMLElement) {
+                this.render = function (curImage : HTMLElement) {
+                    emptyPlayerImage.style.display = 'none';
                     return Player.renderVideo(this.mainWrapper, curImage);
                 }.bind(this);
 
@@ -324,7 +335,8 @@ export namespace QooizPlayer {
 
             } else if (element.classList.contains('image')) {
 
-                this.render = function (curImage: HTMLElement) {
+                this.render = function (curImage : HTMLElement) {
+                    emptyPlayerImage.style.display = 'none';
                     return Player.renderImage(this.mainWrapper, curImage);
                 }.bind(this);
 
@@ -332,7 +344,8 @@ export namespace QooizPlayer {
 
             } else if (element.classList.contains('book')) {
 
-                this.render = function (curImage: HTMLElement) {
+                this.render = function (curImage : HTMLElement) {
+                    emptyPlayerImage.style.display = 'none';
                     return Player.renderBook(this.mainWrapper, curImage);
                 }.bind(this);
 
@@ -341,7 +354,7 @@ export namespace QooizPlayer {
 
             this.imageWrapper.addEventListener('click', function (e) {
 
-                let target: HTMLElement = Utils.GoodFuncs.getDelegateTarget(e, '.img');
+                let target : HTMLElement = Utils.GoodFuncs.getDelegateTarget(e, '.img');
                 if (!target) {
                     return;
                 }
@@ -351,16 +364,19 @@ export namespace QooizPlayer {
 
             this.imageWrapper.addEventListener('click', function (e) {
 
-                let target: HTMLElement = Utils.GoodFuncs.getDelegateTarget(e, '.img > i');
+                let target : HTMLElement = Utils.GoodFuncs.getDelegateTarget(e, '.img > i');
                 if (!target) {
                     return;
                 }
 
+                if (!Utils.GoodFuncs.siblings(target.parentElement, '.img').length) {
+                    emptyPlayerImage.style.display = emptyPlayerImageDisplay;
+                }
                 this.deleteItem(Utils.GoodFuncs.index(target.parentElement, '.img'));
                 e.stopPropagation();
             }.bind(this));
 
-            let firstImage: HTMLSpanElement | null = this.imageWrapper.querySelector('.img');
+            let firstImage : HTMLSpanElement | null = this.imageWrapper.querySelector('.img');
             if (!firstImage) {
                 return;
             }
@@ -375,13 +391,13 @@ export namespace QooizPlayer {
                 playerSliderPseudoBefore = Utils.GoodFuncs.pseudo(this.styleFilePath, imageWrapperSelector + ':before'),
                 playerSliderPseudoAfter = Utils.GoodFuncs.pseudo(this.styleFilePath, imageWrapperSelector + ':after');
 
-            this.imageWrapper.addEventListener('click', function (this: Player, e: MouseEvent) {
+            this.imageWrapper.addEventListener('click', function (this : Player, e : MouseEvent) {
 
-                if (this.imageWrapper.getAttribute('disabled')) {
+                if (this.imageWrapper['disabled']) {
                     return;
                 }
 
-                let offset: number = e.detail && e.detail['offset'] || e.offsetX;
+                let offset : number = e.detail && e.detail['offset'] || e.offsetX;
 
                 if (
                     (this.imageWrapper.scrollLeft < this.scrollButtonsPadding && offset <= this.scrollButtonsWidth)
@@ -395,7 +411,7 @@ export namespace QooizPlayer {
                     return false;
                 }
 
-                let first: HTMLElement | null = this.imageWrapper.querySelector('.img');
+                let first : HTMLElement | null = this.imageWrapper.querySelector('.img');
                 if (!first) {
                     return;
                 }
@@ -413,7 +429,7 @@ export namespace QooizPlayer {
                     return;
                 }
 
-                let scroll: number = 0;
+                let scroll : number = 0;
                 Utils.GoodFuncs.prevAll(first, '.img').forEach(function (element) {
                     scroll += element.clientWidth;
                 });
@@ -430,8 +446,8 @@ export namespace QooizPlayer {
                 playerSliderPseudoAfter({left: 'calc(100% + ' + scroll + 'px) !important'});
             }.bind(this));
 
-            this.imageWrapper.addEventListener('wheel', function (e: WheelEvent) {
-                if (this.getAttribute('disabled')) {
+            this.imageWrapper.addEventListener('wheel', function (e : WheelEvent) {
+                if (this['disabled']) {
                     return;
                 }
 
@@ -449,7 +465,7 @@ export namespace QooizPlayer {
          *
          * @returns {string}
          */
-        get id(): string {
+        get id() : string {
             return this.uniq;
         }
 
@@ -460,7 +476,7 @@ export namespace QooizPlayer {
          * @param {boolean} isActivate - активировать добавляемое изображение
          * @param {string} sourceName - ссылка на альтернативный ресурс
          */
-        public addItem(image: HTMLImageElement, isActivate: boolean = false, sourceName: string = ''): void {
+        public addItem(image : HTMLImageElement, isActivate : boolean = false, sourceName : string = '') : void {
             if (image.closest('.clone')) {
                 return;
             }
@@ -482,7 +498,7 @@ export namespace QooizPlayer {
             this.imageWrapper.appendChild(span);
 
             if (isActivate) {
-                span.dispatchEvent(new Event('click'));
+                span.click();
             }
         }
 
@@ -491,12 +507,11 @@ export namespace QooizPlayer {
          *
          * @param {number} index - индекс удаляемой сущность
          */
-        public deleteItem(index: number) {
+        public deleteItem(index : number) {
 
-            let images: HTMLSpanElement[] = Array.from(this.imageWrapper.querySelectorAll('.img')),
-                image: HTMLSpanElement | null = images[index],
-                src = image.dataset.objectSrc,
-                obj: HTMLElement | null = this.mainWrapper.querySelector('*[src="' + src + '"]');
+            let images : HTMLSpanElement[] = Array.from(this.imageWrapper.querySelectorAll('.img')),
+                image : HTMLSpanElement | null = images[index],
+                obj : HTMLElement | null = this.mainWrapper.children[index];
 
             if (image) {
                 image.remove();
@@ -505,9 +520,13 @@ export namespace QooizPlayer {
                 obj.remove();
             }
 
-            images[index + 1].dispatchEvent(new Event('click'));
+            if (images[index + 1] !== undefined) {
+                images[index + 1].click();
+            } else if (images[index - 1]) {
+                images[index - 1].click();
+            }
 
-            this.imageWrapper.dispatchEvent(
+            document.dispatchEvent(
                 new CustomEvent(
                     'deleteItem',
                     {

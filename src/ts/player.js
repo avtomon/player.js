@@ -39,20 +39,24 @@ export var QooizPlayer;
                 this.addItem(image);
                 image.remove();
             }, this);
+            const emptyPlayerImage = element.querySelector(`img.${this.imageStopClass}`), emptyPlayerImageDisplay = emptyPlayerImage.style.display;
             if (element.classList.contains('video')) {
                 this.render = function (curImage) {
+                    emptyPlayerImage.style.display = 'none';
                     return Player.renderVideo(this.mainWrapper, curImage);
                 }.bind(this);
                 this.type = 'video';
             }
             else if (element.classList.contains('image')) {
                 this.render = function (curImage) {
+                    emptyPlayerImage.style.display = 'none';
                     return Player.renderImage(this.mainWrapper, curImage);
                 }.bind(this);
                 this.type = 'image';
             }
             else if (element.classList.contains('book')) {
                 this.render = function (curImage) {
+                    emptyPlayerImage.style.display = 'none';
                     return Player.renderBook(this.mainWrapper, curImage);
                 }.bind(this);
                 this.type = 'book';
@@ -69,6 +73,9 @@ export var QooizPlayer;
                 if (!target) {
                     return;
                 }
+                if (!Utils.GoodFuncs.siblings(target.parentElement, '.img').length) {
+                    emptyPlayerImage.style.display = emptyPlayerImageDisplay;
+                }
                 this.deleteItem(Utils.GoodFuncs.index(target.parentElement, '.img'));
                 e.stopPropagation();
             }.bind(this));
@@ -82,7 +89,7 @@ export var QooizPlayer;
             }
             let imageWrapperSelector = '.' + this.uniq, playerSliderPseudoBefore = Utils.GoodFuncs.pseudo(this.styleFilePath, imageWrapperSelector + ':before'), playerSliderPseudoAfter = Utils.GoodFuncs.pseudo(this.styleFilePath, imageWrapperSelector + ':after');
             this.imageWrapper.addEventListener('click', function (e) {
-                if (this.imageWrapper.getAttribute('disabled')) {
+                if (this.imageWrapper['disabled']) {
                     return;
                 }
                 let offset = e.detail && e.detail['offset'] || e.offsetX;
@@ -120,7 +127,7 @@ export var QooizPlayer;
                 playerSliderPseudoAfter({ left: 'calc(100% + ' + scroll + 'px) !important' });
             }.bind(this));
             this.imageWrapper.addEventListener('wheel', function (e) {
-                if (this.getAttribute('disabled')) {
+                if (this['disabled']) {
                     return;
                 }
                 if (e.deltaY < 0) {
@@ -130,6 +137,13 @@ export var QooizPlayer;
                 this.dispatchEvent(new CustomEvent('click', { detail: { offset: this.clientWidth } }));
             });
         }
+        /**
+         * Начало рендеринга
+         *
+         * @param {HTMLDivElement} mainWrapper
+         * @param {HTMLSpanElement} curImage
+         * @param {string} selector
+         */
         static renderInit(mainWrapper, curImage, selector) {
             if (curImage.classList.contains('current')) {
                 return;
@@ -275,7 +289,7 @@ export var QooizPlayer;
             span.style.backgroundImage = 'url(' + image.src + ')';
             this.imageWrapper.appendChild(span);
             if (isActivate) {
-                span.dispatchEvent(new Event('click'));
+                span.click();
             }
         }
         /**
@@ -284,15 +298,20 @@ export var QooizPlayer;
          * @param {number} index - индекс удаляемой сущность
          */
         deleteItem(index) {
-            let images = Array.from(this.imageWrapper.querySelectorAll('.img')), image = images[index], src = image.dataset.objectSrc, obj = this.mainWrapper.querySelector('*[src="' + src + '"]');
+            let images = Array.from(this.imageWrapper.querySelectorAll('.img')), image = images[index], obj = this.mainWrapper.children[index];
             if (image) {
                 image.remove();
             }
             if (obj) {
                 obj.remove();
             }
-            images[index + 1].dispatchEvent(new Event('click'));
-            this.imageWrapper.dispatchEvent(new CustomEvent('deleteItem', {
+            if (images[index + 1] !== undefined) {
+                images[index + 1].click();
+            }
+            else if (images[index - 1]) {
+                images[index - 1].click();
+            }
+            document.dispatchEvent(new CustomEvent('deleteItem', {
                 detail: {
                     index: index,
                     image: image
