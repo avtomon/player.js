@@ -13,10 +13,17 @@ export var QooizPlayer;
          * @param {IPlayerOptions} cnf - объект конфигурации
          */
         constructor(element, cnf = {}) {
+            this.animationDuration = 400;
             /**
              * Уникальный идентификатор плеера
              */
             this.uniq = Utils.GoodFuncs.getRandomString(12);
+            this.prevScroll = 0;
+            this.diffWidth = 0;
+            this.imagesWidth = 0;
+            this.images = [];
+            this.position = 0;
+            this.playerElement = element;
             this.styleFilePath = (cnf.styleFilePath || Player.defaultOptions.styleFilePath);
             this.activate = (cnf.activate !== undefined ? cnf.activate : Player.defaultOptions.activate);
             this.mainWrapperClass = (cnf.mainWrapperClass || Player.defaultOptions.mainWrapperClass);
@@ -25,117 +32,33 @@ export var QooizPlayer;
             this.scrollButtonsPadding
                 = (cnf.scrollButtonsPadding || Player.defaultOptions.scrollButtonsPadding);
             this.imageStopClass = (cnf.imageStopClass || Player.defaultOptions.imageStopClass);
+            const self = this;
             element.classList.add('player');
             element.insertAdjacentHTML('beforeend', `<div class="${this.mainWrapperClass}"></div>`);
             element.insertAdjacentHTML('beforeend', `<div class="${this.imageWrapperClass}"></div>`);
-            const imageWrapper = element.querySelector(`.${this.imageWrapperClass}`), mainWrapper = element.querySelector(`.${this.mainWrapperClass}`);
-            if (!imageWrapper || !mainWrapper) {
-                throw new Error('Wrapper not found');
-            }
-            this.imageWrapper = imageWrapper;
-            this.mainWrapper = mainWrapper;
+            this.imageWrapper = element.querySelector(`.${this.imageWrapperClass}`);
+            this.mainWrapper = element.querySelector(`.${this.mainWrapperClass}`);
             this.imageWrapper.classList.add(this.uniq);
             element.querySelectorAll(`img:not(.${this.imageStopClass})`).forEach(function (image) {
-                this.addItem(image);
-                image.remove();
-            }, this);
-            const emptyPlayerImage = element.querySelector(`img.${this.imageStopClass}`), emptyPlayerImageDisplay = emptyPlayerImage.style.display;
-            if (element.classList.contains('video')) {
-                this.render = function (curImage) {
-                    emptyPlayerImage.style.display = 'none';
-                    return Player.renderVideo(this.mainWrapper, curImage);
-                }.bind(this);
-                this.type = 'video';
-            }
-            else if (element.classList.contains('image')) {
-                this.render = function (curImage) {
-                    emptyPlayerImage.style.display = 'none';
-                    return Player.renderImage(this.mainWrapper, curImage);
-                }.bind(this);
-                this.type = 'image';
-            }
-            else if (element.classList.contains('book')) {
-                this.render = function (curImage) {
-                    emptyPlayerImage.style.display = 'none';
-                    return Player.renderBook(this.mainWrapper, curImage);
-                }.bind(this);
-                this.type = 'book';
-            }
-            this.imageWrapper.addEventListener('click', function (e) {
-                let target = Utils.GoodFuncs.getDelegateTarget(e, '.img');
-                if (!target) {
-                    return;
-                }
-                this.render(target);
-            }.bind(this));
-            this.imageWrapper.addEventListener('click', function (e) {
-                let target = Utils.GoodFuncs.getDelegateTarget(e, '.img > i');
-                if (!target) {
-                    return;
-                }
-                if (!Utils.GoodFuncs.siblings(target.parentElement, '.img').length) {
-                    emptyPlayerImage.style.display = emptyPlayerImageDisplay;
-                }
-                this.deleteItem(Utils.GoodFuncs.index(target.parentElement, '.img'));
-                e.stopPropagation();
-            }.bind(this));
-            let firstImage = this.imageWrapper.querySelector('.img');
-            if (!firstImage) {
-                return;
-            }
-            firstImage.classList.add('first');
-            if (this.activate) {
-                firstImage.dispatchEvent(new Event('click', { bubbles: true }));
-            }
-            let imageWrapperSelector = '.' + this.uniq, playerSliderPseudoBefore = Utils.GoodFuncs.pseudo(this.styleFilePath, imageWrapperSelector + ':before'), playerSliderPseudoAfter = Utils.GoodFuncs.pseudo(this.styleFilePath, imageWrapperSelector + ':after');
-            this.imageWrapper.addEventListener('click', function (e) {
-                if (this.imageWrapper['disabled']) {
-                    return;
-                }
-                let offset = e.detail && e.detail['offset'] || e.offsetX;
-                if ((this.imageWrapper.scrollLeft < this.scrollButtonsPadding && offset <= this.scrollButtonsWidth)
-                    ||
-                        (this.imageWrapper.scrollLeft > this.imageWrapper.scrollWidth - this.imageWrapper.clientWidth - this.scrollButtonsPadding
-                            &&
-                                offset >= this.imageWrapper.clientWidth - this.scrollButtonsWidth)) {
-                    return false;
-                }
-                let first = this.imageWrapper.querySelector('.img');
-                if (!first) {
-                    return;
-                }
-                first.classList.remove('first');
-                if (offset <= this.scrollButtonsWidth) {
-                    Utils.GoodFuncs.prev(first, '.img').classList.add('first');
-                }
-                else if (offset >= this.imageWrapper.clientWidth - this.scrollButtonsWidth) {
-                    Utils.GoodFuncs.next(first, '.img').classList.add('first');
-                }
-                first = this.imageWrapper.querySelector('.img.first');
-                if (!first) {
-                    return;
-                }
-                let scroll = 0;
-                Utils.GoodFuncs.prevAll(first, '.img').forEach(function (element) {
-                    scroll += element.clientWidth;
-                });
-                this.imageWrapper.animate({
-                    scrollLeft: scroll
-                }, 500);
-                this.imageWrapper.removeAttribute('disabled');
-                playerSliderPseudoBefore({ left: scroll + 'px !important' });
-                playerSliderPseudoAfter({ left: 'calc(100% + ' + scroll + 'px) !important' });
-            }.bind(this));
-            this.imageWrapper.addEventListener('wheel', function (e) {
-                if (this['disabled']) {
-                    return;
-                }
-                if (e.deltaY < 0) {
-                    this.dispatchEvent(new CustomEvent('click', { detail: { offset: 0 } }));
-                    return;
-                }
-                this.dispatchEvent(new CustomEvent('click', { detail: { offset: this.clientWidth } }));
+                self.addItem(image);
+                //image.remove();
             });
+            this.images = Array.from(this.imageWrapper.querySelectorAll('.img'));
+            let imagesWidth = 0;
+            this.images.forEach(function (img) {
+                imagesWidth += img.offsetWidth;
+            });
+            this.imagesWidth = imagesWidth;
+            this.emptyPlayerImage = element.querySelector(`img.${this.imageStopClass}`);
+            this.emptyPlayerImageDisplay = this.emptyPlayerImage.style.display;
+            this.setRender();
+            this.setImageClick();
+            this.setDeleteClick();
+            this.setScroll();
+            const firstImage = this.imageWrapper.querySelector('.img');
+            if (this.activate && firstImage) {
+                firstImage.click();
+            }
         }
         /**
          * Начало рендеринга
@@ -149,8 +72,7 @@ export var QooizPlayer;
                 return;
             }
             mainWrapper.querySelectorAll(selector).forEach(function (element) {
-                let htmlElement = element;
-                htmlElement.style.display = 'none';
+                element.style.display = 'none';
             });
             if (curImage.parentElement) {
                 Array.from(curImage.parentElement.children).forEach(function (imageSpan) {
@@ -178,7 +100,6 @@ export var QooizPlayer;
                 return null;
             }
             for (let video of Array.from(mainWrapper.querySelectorAll('video'))) {
-                video = video;
                 if (video.src === videoSrc) {
                     video.style.display = 'block';
                     return video;
@@ -197,7 +118,7 @@ export var QooizPlayer;
                 width: mainWrapper.innerWidth(),
                 height: mainWrapper.innerWidth() * curImage.innerHeight() / curImage.innerWidth()*/
             });
-            mainWrapper.insertAdjacentElement('afterbegin', video);
+            mainWrapper.insertAdjacentElement('beforeend', video);
             return video;
         }
         /**
@@ -218,10 +139,10 @@ export var QooizPlayer;
                 }
             }
             let image = Utils.GoodFuncs.createElementWithAttrs('img', {
-                class: 'materialboxed',
+                class: 'materialboxed responsive-img',
                 src: imageSrc
             });
-            mainWrapper.insertAdjacentElement('afterbegin', image);
+            mainWrapper.insertAdjacentElement('beforeend', image);
             return image;
         }
         /**
@@ -243,8 +164,8 @@ export var QooizPlayer;
                 return null;
             }
             for (let book of Array.from(mainWrapper.querySelectorAll('embed, iframe'))) {
-                if (book['src'] === book) {
-                    book['style'].display = 'block';
+                if (book.src === bookSrc) {
+                    book.style.display = 'block';
                     return book.tagName === 'iframe' ? book : book;
                 }
             }
@@ -256,7 +177,150 @@ export var QooizPlayer;
                 default:
                     iframe.setAttribute('src', 'https://docs.google.com/viewer?url=' + document.location.origin + bookSrc + '&embedded=true');
             }
-            mainWrapper.insertAdjacentElement('afterbegin', iframe);
+            mainWrapper.insertAdjacentElement('beforeend', iframe);
+        }
+        setRender() {
+            const self = this;
+            if (this.playerElement.classList.contains('video')) {
+                this.render = function (curImage) {
+                    self.emptyPlayerImage.style.display = 'none';
+                    return Player.renderVideo(self.mainWrapper, curImage);
+                };
+                this.type = 'video';
+            }
+            else if (this.playerElement.classList.contains('image')) {
+                this.render = function (curImage) {
+                    self.emptyPlayerImage.style.display = 'none';
+                    return Player.renderImage(self.mainWrapper, curImage);
+                };
+                this.type = 'image';
+            }
+            else if (this.playerElement.classList.contains('book')) {
+                this.render = function (curImage) {
+                    self.emptyPlayerImage.style.display = 'none';
+                    return Player.renderBook(self.mainWrapper, curImage);
+                };
+                this.type = 'book';
+            }
+        }
+        setImageClick() {
+            const self = this;
+            this.imageWrapper.addEventListener('click', function (e) {
+                const target = Utils.GoodFuncs.getDelegateTarget(e, '.img');
+                if (!target) {
+                    return;
+                }
+                e.stopPropagation();
+                self.render(target);
+                //self.scrollTo(self.images.indexOf(target));
+            });
+        }
+        setDeleteClick() {
+            const self = this;
+            this.imageWrapper.addEventListener('click', function (e) {
+                let target = Utils.GoodFuncs.getDelegateTarget(e, '.img > i');
+                if (!target) {
+                    return;
+                }
+                const index = self.images.indexOf(target.parentNode);
+                if (self.images[index + 1] !== undefined) {
+                    self.images[index + 1].click();
+                }
+                else if (self.images[index - 1]) {
+                    self.images[index - 1].click();
+                }
+                self.deleteItem(index);
+                if (!self.images.length) {
+                    self.emptyPlayerImage.style.display = self.emptyPlayerImageDisplay;
+                }
+                e.stopPropagation();
+            });
+        }
+        setScroll() {
+            const self = this;
+            this.imageWrapper.addEventListener('click', function (e) {
+                if (!e.target.matches('.' + self.imageWrapperClass)) {
+                    return;
+                }
+                let offset = e['detail'] && e['detail']['offset'] !== undefined
+                    ? e.detail['offset']
+                    : e.offsetX;
+                if (!self.images.length || self.imagesWidth <= self.imageWrapper.clientWidth) {
+                    return;
+                }
+                let position = self.position;
+                if (offset <= self.scrollButtonsWidth) {
+                    if (self.images[position - 1]) {
+                        position--;
+                        self.diffWidth = 0;
+                    }
+                }
+                else if (offset >= self.imageWrapper.clientWidth - self.scrollButtonsWidth) {
+                    if (!self.diffWidth && self.images[position + 1]) {
+                        position++;
+                    }
+                }
+                else {
+                    return;
+                }
+                const startScroll = self.prevScroll;
+                if (self.scrollTo(position) === startScroll && position < self.position && startScroll) {
+                    this.dispatchEvent(new CustomEvent('click', { detail: { offset: offset } }));
+                }
+            });
+            this.imageWrapper.addEventListener('wheel', function (e) {
+                e.preventDefault();
+                if (this['disabled']) {
+                    return;
+                }
+                if (e.deltaY < 0) {
+                    this.dispatchEvent(new CustomEvent('click', { detail: { offset: 0 } }));
+                    return;
+                }
+                this.dispatchEvent(new CustomEvent('click', { detail: { offset: this.clientWidth } }));
+            });
+        }
+        /**
+         *
+         * @param {number} index
+         *
+         * @returns {number}
+         */
+        scrollTo(index) {
+            const self = this;
+            if (!this.images[index]) {
+                return;
+            }
+            const currentImage = this.images[index];
+            let scroll = 0;
+            Utils.GoodFuncs.prevAll(currentImage, '.img').forEach(function (element) {
+                scroll += element.clientWidth;
+            });
+            if (scroll > this.prevScroll) {
+                let viewWidth = 0;
+                Utils.GoodFuncs.nextAll(currentImage, '.img').forEach(function (element) {
+                    viewWidth += element.clientWidth;
+                });
+                viewWidth += currentImage.clientWidth;
+                if (viewWidth <= this.imageWrapper.clientWidth) {
+                    this.diffWidth = this.imageWrapper.clientWidth - viewWidth;
+                    scroll -= this.diffWidth;
+                }
+            }
+            else {
+                this.diffWidth = 0;
+            }
+            this.images.forEach(function (img) {
+                img.animate({
+                    left: [-self.prevScroll + 'px', -scroll + 'px']
+                }, {
+                    duration: self.animationDuration,
+                    fill: 'forwards'
+                });
+            });
+            this.position = index;
+            this.prevScroll = scroll;
+            return scroll;
         }
         /**
          * Геттер для уникального идентификатора плеера
@@ -288,6 +352,8 @@ export var QooizPlayer;
             });
             span.style.backgroundImage = 'url(' + image.src + ')';
             this.imageWrapper.appendChild(span);
+            this.images.push(span);
+            this.imagesWidth += span.offsetWidth;
             if (isActivate) {
                 span.click();
             }
@@ -298,19 +364,16 @@ export var QooizPlayer;
          * @param {number} index - индекс удаляемой сущность
          */
         deleteItem(index) {
-            let images = Array.from(this.imageWrapper.querySelectorAll('.img')), image = images[index], obj = this.mainWrapper.children[index];
+            let image = this.images[index], obj = this.mainWrapper.children[index];
             if (image) {
                 image.remove();
             }
             if (obj) {
                 obj.remove();
             }
-            if (images[index + 1] !== undefined) {
-                images[index + 1].click();
-            }
-            else if (images[index - 1]) {
-                images[index - 1].click();
-            }
+            delete this.images[index];
+            this.images = this.images.filter(val => val);
+            this.imagesWidth -= image.offsetWidth;
             document.dispatchEvent(new CustomEvent('deleteItem', {
                 detail: {
                     index: index,

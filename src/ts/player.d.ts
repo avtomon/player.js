@@ -77,17 +77,24 @@ export declare namespace QooizPlayer {
          * @type {IPlayerOptions}
          */
         static defaultOptions: IPlayerOptions;
+        /**
+         * Где хранятся стили плеера
+         */
         readonly styleFilePath: string;
+        /**
+         * Выбирать ли первый элемент после загрузки
+         */
         readonly activate: boolean;
         readonly mainWrapperClass: string;
         readonly imageWrapperClass: string;
         readonly scrollButtonsWidth: number;
         readonly scrollButtonsPadding: number;
         readonly imageStopClass: string;
+        readonly animationDuration: number;
         /**
          * Обработчик добавления новой сущности
          */
-        protected readonly render: (curImage: HTMLElement) => HTMLElement | null;
+        protected render: (curImage: HTMLElement) => HTMLElement | null;
         /**
          * Уникальный идентификатор плеера
          */
@@ -103,11 +110,30 @@ export declare namespace QooizPlayer {
         /**
          * Тип плеера
          */
-        readonly type: 'video' | 'image' | 'book';
+        protected type: 'video' | 'image' | 'book';
         /**
          * На каком элементе загружается плеер
          */
         readonly element: HTMLElement;
+        readonly emptyPlayerImage: HTMLImageElement;
+        readonly emptyPlayerImageDisplay: string;
+        readonly playerElement: HTMLElement;
+        protected prevScroll: number;
+        protected diffWidth: number;
+        protected imagesWidth: number;
+        protected images: HTMLSpanElement[];
+        protected position: number;
+        protected setRender(): void;
+        protected setImageClick(): void;
+        protected setDeleteClick(): void;
+        protected setScroll(): void;
+        /**
+         *
+         * @param {number} index
+         *
+         * @returns {number}
+         */
+        scrollTo(index: number): number;
         /**
          * Конструктор
          *
