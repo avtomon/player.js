@@ -70,7 +70,7 @@ export declare namespace QooizPlayer {
          *
          * @returns {HTMLIFrameElement | HTMLEmbedElement | null}
          */
-        protected static renderBook(mainWrapper: HTMLDivElement, curImage: HTMLSpanElement): HTMLIFrameElement | HTMLEmbedElement | null | undefined;
+        protected static renderBook(mainWrapper: HTMLDivElement, curImage: HTMLSpanElement): HTMLIFrameElement | HTMLEmbedElement | null;
         /**
          * Параметры конфигурации по умолчанию
          *
@@ -115,8 +115,8 @@ export declare namespace QooizPlayer {
          * На каком элементе загружается плеер
          */
         readonly element: HTMLElement;
-        readonly emptyPlayerImage: HTMLImageElement;
-        readonly emptyPlayerImageDisplay: string;
+        readonly emptyPlayerImage: HTMLImageElement | null;
+        readonly emptyPlayerImageDisplay: string | null;
         readonly playerElement: HTMLElement;
         protected prevScroll: number;
         protected diffWidth: number;
@@ -133,7 +133,7 @@ export declare namespace QooizPlayer {
          *
          * @returns {number}
          */
-        scrollTo(index: number): number;
+        scrollTo(index: number): number | undefined;
         /**
          * Конструктор
          *

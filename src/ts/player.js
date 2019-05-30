@@ -41,7 +41,7 @@ export var QooizPlayer;
             this.imageWrapper.classList.add(this.uniq);
             element.querySelectorAll(`img:not(.${this.imageStopClass})`).forEach(function (image) {
                 self.addItem(image);
-                //image.remove();
+                image.remove();
             });
             this.images = Array.from(this.imageWrapper.querySelectorAll('.img'));
             let imagesWidth = 0;
@@ -50,7 +50,7 @@ export var QooizPlayer;
             });
             this.imagesWidth = imagesWidth;
             this.emptyPlayerImage = element.querySelector(`img.${this.imageStopClass}`);
-            this.emptyPlayerImageDisplay = this.emptyPlayerImage.style.display;
+            this.emptyPlayerImageDisplay = this.emptyPlayerImage ? this.emptyPlayerImage.style.display : null;
             this.setRender();
             this.setImageClick();
             this.setDeleteClick();
@@ -169,35 +169,36 @@ export var QooizPlayer;
                     return book.tagName === 'iframe' ? book : book;
                 }
             }
-            let iframe = document.createElement('iframe');
+            let book = document.createElement('iframe');
             switch (bookType) {
                 case 'pdf':
-                    iframe.setAttribute('src', bookSrc);
+                    book.setAttribute('src', bookSrc);
                     break;
                 default:
-                    iframe.setAttribute('src', 'https://docs.google.com/viewer?url=' + document.location.origin + bookSrc + '&embedded=true');
+                    book.setAttribute('src', 'https://docs.google.com/viewer?url=' + document.location.origin + bookSrc + '&embedded=true');
             }
-            mainWrapper.insertAdjacentElement('beforeend', iframe);
+            mainWrapper.insertAdjacentElement('beforeend', book);
+            return book;
         }
         setRender() {
             const self = this;
             if (this.playerElement.classList.contains('video')) {
                 this.render = function (curImage) {
-                    self.emptyPlayerImage.style.display = 'none';
+                    self.emptyPlayerImage && (self.emptyPlayerImage.style.display = 'none');
                     return Player.renderVideo(self.mainWrapper, curImage);
                 };
                 this.type = 'video';
             }
             else if (this.playerElement.classList.contains('image')) {
                 this.render = function (curImage) {
-                    self.emptyPlayerImage.style.display = 'none';
+                    self.emptyPlayerImage && (self.emptyPlayerImage.style.display = 'none');
                     return Player.renderImage(self.mainWrapper, curImage);
                 };
                 this.type = 'image';
             }
             else if (this.playerElement.classList.contains('book')) {
                 this.render = function (curImage) {
-                    self.emptyPlayerImage.style.display = 'none';
+                    self.emptyPlayerImage && (self.emptyPlayerImage.style.display = 'none');
                     return Player.renderBook(self.mainWrapper, curImage);
                 };
                 this.type = 'book';
@@ -231,7 +232,9 @@ export var QooizPlayer;
                 }
                 self.deleteItem(index);
                 if (!self.images.length) {
-                    self.emptyPlayerImage.style.display = self.emptyPlayerImageDisplay;
+                    self.emptyPlayerImage
+                        && self.emptyPlayerImageDisplay
+                        && (self.emptyPlayerImage.style.display = self.emptyPlayerImageDisplay);
                 }
                 e.stopPropagation();
             });
@@ -341,16 +344,16 @@ export var QooizPlayer;
             if (image.closest('.clone')) {
                 return;
             }
-            let span = Utils.GoodFuncs.createElementWithAttrs('span', {
+            let src = decodeURI(image.src), span = Utils.GoodFuncs.createElementWithAttrs('span', {
                 'class': 'img',
-                'data-src': image.src,
+                'data-src': src,
                 'title': image.title.length > 50 ? image.title.substr(0, 50) + '...' : image.title,
                 'data-object-src': image.dataset.objectSrc,
                 'data-type': image.dataset.type,
                 'html': '<i class="material-icons">close</i>',
                 'data-source': sourceName || image.dataset.source
             });
-            span.style.backgroundImage = 'url(' + image.src + ')';
+            span.style.backgroundImage = `url(${src})`;
             this.imageWrapper.appendChild(span);
             this.images.push(span);
             this.imagesWidth += span.offsetWidth;
