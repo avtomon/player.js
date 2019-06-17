@@ -374,13 +374,13 @@ export var QooizPlayer;
             if (obj) {
                 obj.remove();
             }
-            delete this.images[index];
+            this.images.splice(index, 1);
             this.images = this.images.filter(val => val);
             this.imagesWidth -= image.offsetWidth;
             document.dispatchEvent(new CustomEvent('deleteItem', {
                 detail: {
                     index: index,
-                    image: image
+                    field: image.dataset.source
                 }
             }));
         }

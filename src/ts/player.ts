@@ -607,7 +607,7 @@ export namespace QooizPlayer {
                 obj.remove();
             }
 
-            delete this.images[index];
+            this.images.splice(index, 1);
             this.images = this.images.filter(val => val);
             this.imagesWidth -= image.offsetWidth;
 
@@ -617,7 +617,7 @@ export namespace QooizPlayer {
                     {
                         detail: {
                             index: index,
-                            image: image
+                            field: image.dataset.source
                         }
                     }
                 )
