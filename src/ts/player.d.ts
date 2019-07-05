@@ -8,10 +8,6 @@ export declare namespace QooizPlayer {
          */
         readonly styleFilePath?: string;
         /**
-         * Выбирать первый элемент при инициализации плеера
-         */
-        readonly activate?: boolean;
-        /**
          * Класс блока просмотра
          */
         readonly mainWrapperClass?: string;
@@ -158,8 +154,8 @@ export declare namespace QooizPlayer {
         /**
          * Удалить пару изображение - ресурс из плеера
          *
-         * @param {number} index - индекс удаляемой сущность
+         * @param {HTMLSpanElement} element - удаляемый элемент
          */
-        deleteItem(index: number): void;
+        deleteItem(element: HTMLSpanElement): void;
     }
 }

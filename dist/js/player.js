@@ -25,7 +25,7 @@ export var QooizPlayer;
             this.position = 0;
             this.playerElement = element;
             this.styleFilePath = (cnf.styleFilePath || Player.defaultOptions.styleFilePath);
-            this.activate = (cnf.activate !== undefined ? cnf.activate : Player.defaultOptions.activate);
+            this.activate = !element.classList.contains('no-active');
             this.mainWrapperClass = (cnf.mainWrapperClass || Player.defaultOptions.mainWrapperClass);
             this.imageWrapperClass = (cnf.imageWrapperClass || Player.defaultOptions.imageWrapperClass);
             this.scrollButtonsWidth = (cnf.scrollButtonsWidth || Player.defaultOptions.scrollButtonsWidth);
@@ -223,14 +223,14 @@ export var QooizPlayer;
                 if (!target) {
                     return;
                 }
-                const index = self.images.indexOf(target.parentNode);
+                const element = target.parentNode, index = self.images.indexOf(element);
                 if (self.images[index + 1] !== undefined) {
                     self.images[index + 1].click();
                 }
                 else if (self.images[index - 1]) {
                     self.images[index - 1].click();
                 }
-                self.deleteItem(index);
+                self.deleteItem(element);
                 if (!self.images.length) {
                     self.emptyPlayerImage
                         && self.emptyPlayerImageDisplay
@@ -364,23 +364,24 @@ export var QooizPlayer;
         /**
          * Удалить пару изображение - ресурс из плеера
          *
-         * @param {number} index - индекс удаляемой сущность
+         * @param {HTMLSpanElement} element - удаляемый элемент
          */
-        deleteItem(index) {
-            let image = this.images[index], obj = this.mainWrapper.children[index];
-            if (image) {
-                image.remove();
-            }
+        deleteItem(element) {
+            let index = this.images.indexOf(element), obj = this.mainWrapper.children[index];
+            element.remove();
             if (obj) {
                 obj.remove();
             }
-            delete this.images[index];
+            this.images.splice(index, 1);
             this.images = this.images.filter(val => val);
-            this.imagesWidth -= image.offsetWidth;
+            this.imagesWidth -= element.offsetWidth;
+            const fieldIndex = this.images.filter(function (image) {
+                return image.dataset.source === element.dataset.source;
+            }).indexOf(element);
             document.dispatchEvent(new CustomEvent('deleteItem', {
                 detail: {
-                    index: index,
-                    image: image
+                    index: fieldIndex,
+                    field: element.dataset.source
                 }
             }));
         }
@@ -392,7 +393,6 @@ export var QooizPlayer;
      */
     Player.defaultOptions = {
         styleFilePath: 'player.css',
-        activate: true,
         mainWrapperClass: 'main-wrapper',
         imageWrapperClass: 'image-wrapper',
         scrollButtonsWidth: 50,

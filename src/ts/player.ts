@@ -15,11 +15,6 @@ export namespace QooizPlayer {
         readonly styleFilePath? : string;
 
         /**
-         * Выбирать первый элемент при инициализации плеера
-         */
-        readonly activate? : boolean;
-
-        /**
          * Класс блока просмотра
          */
         readonly mainWrapperClass? : string;
@@ -239,7 +234,6 @@ export namespace QooizPlayer {
          */
         public static defaultOptions : IPlayerOptions = {
             styleFilePath: 'player.css',
-            activate: true,
             mainWrapperClass: 'main-wrapper',
             imageWrapperClass: 'image-wrapper',
             scrollButtonsWidth: 50,
@@ -369,14 +363,15 @@ export namespace QooizPlayer {
                     return;
                 }
 
-                const index = self.images.indexOf(target.parentNode as HTMLSpanElement);
+                const element = target.parentNode as HTMLSpanElement,
+                    index = self.images.indexOf(element);
                 if (self.images[index + 1] !== undefined) {
                     self.images[index + 1].click();
                 } else if (self.images[index - 1]) {
                     self.images[index - 1].click();
                 }
                 
-                self.deleteItem(index);
+                self.deleteItem(element);
 
                 if (!self.images.length) {
                     self.emptyPlayerImage
@@ -497,7 +492,7 @@ export namespace QooizPlayer {
 
             this.playerElement = element;
             this.styleFilePath = (cnf.styleFilePath || Player.defaultOptions.styleFilePath) as string;
-            this.activate = (cnf.activate !== undefined ? cnf.activate : Player.defaultOptions.activate) as boolean;
+            this.activate = !element.classList.contains('no-active');
             this.mainWrapperClass = (cnf.mainWrapperClass || Player.defaultOptions.mainWrapperClass) as string;
             this.imageWrapperClass = (cnf.imageWrapperClass || Player.defaultOptions.imageWrapperClass) as string;
             this.scrollButtonsWidth = (cnf.scrollButtonsWidth || Player.defaultOptions.scrollButtonsWidth) as number;
@@ -593,31 +588,33 @@ export namespace QooizPlayer {
         /**
          * Удалить пару изображение - ресурс из плеера
          *
-         * @param {number} index - индекс удаляемой сущность
+         * @param {HTMLSpanElement} element - удаляемый элемент
          */
-        public deleteItem(index : number) {
+        public deleteItem(element : HTMLSpanElement) {
 
-            let image : HTMLSpanElement | null = this.images[index],
+            let index = this.images.indexOf(element),
                 obj : Element | null = this.mainWrapper.children[index];
 
-            if (image) {
-                image.remove();
-            }
+            element.remove();
             if (obj) {
                 obj.remove();
             }
 
             this.images.splice(index, 1);
             this.images = this.images.filter(val => val);
-            this.imagesWidth -= image.offsetWidth;
+            this.imagesWidth -= element.offsetWidth;
+
+            const fieldIndex = this.images.filter(function (image) {
+                return image.dataset.source === element.dataset.source;
+            }).indexOf(element);
 
             document.dispatchEvent(
                 new CustomEvent(
                     'deleteItem',
                     {
                         detail: {
-                            index: index,
-                            field: image.dataset.source
+                            index: fieldIndex,
+                            field: element.dataset.source
                         }
                     }
                 )
