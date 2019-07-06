@@ -39,6 +39,10 @@ export var QooizPlayer;
             this.imageWrapper = element.querySelector(`.${this.imageWrapperClass}`);
             this.mainWrapper = element.querySelector(`.${this.mainWrapperClass}`);
             this.imageWrapper.classList.add(this.uniq);
+            this.setRender();
+            this.setImageClick();
+            this.setDeleteClick();
+            this.setScroll();
             element.querySelectorAll(`img:not(.${this.imageStopClass})`).forEach(function (image) {
                 self.addItem(image);
                 image.remove();
@@ -51,10 +55,6 @@ export var QooizPlayer;
             this.imagesWidth = imagesWidth;
             this.emptyPlayerImage = element.querySelector(`img.${this.imageStopClass}`);
             this.emptyPlayerImageDisplay = this.emptyPlayerImage ? this.emptyPlayerImage.style.display : null;
-            this.setRender();
-            this.setImageClick();
-            this.setDeleteClick();
-            this.setScroll();
             const firstImage = this.imageWrapper.querySelector('.img');
             if (this.activate && firstImage) {
                 firstImage.click();
@@ -92,10 +92,6 @@ export var QooizPlayer;
         static renderVideo(mainWrapper, curImage) {
             Player.renderInit(mainWrapper, curImage, 'video');
             let videoSrc = curImage.dataset.objectSrc || '', imageSrc = curImage.dataset.src;
-            if (!videoSrc) {
-                let parched = imageSrc ? imageSrc.match(/^(.*?\/)image\/(\w+)/) : null;
-                videoSrc = Array.isArray(parched) ? parched[1] + 'video/' + parched[2] + '.mp4' : '';
-            }
             if (!videoSrc) {
                 return null;
             }
@@ -155,11 +151,7 @@ export var QooizPlayer;
          */
         static renderBook(mainWrapper, curImage) {
             Player.renderInit(mainWrapper, curImage, 'iframe, embed');
-            let bookSrc = curImage.dataset.objectSrc || '', imageSrc = curImage.dataset.src || '', bookSrcMatches = bookSrc.match(/.+?\.([^.]+)$/), bookType = curImage.dataset.type || (bookSrcMatches ? bookSrcMatches[1] : '');
-            if (!bookSrc) {
-                let parched = imageSrc ? imageSrc.match(/^(.*?\/)image\/(\w+)/) : null;
-                bookSrc = Array.isArray(parched) && bookType ? parched[1] + 'book/' + parched[2] + '.' + bookType : '';
-            }
+            let bookSrc = curImage.dataset.objectSrc || '', bookSrcMatches = bookSrc.match(/.+?\.([^.]+)$/), bookType = curImage.dataset.type || (bookSrcMatches ? bookSrcMatches[1] : '');
             if (!bookSrc || !bookType) {
                 return null;
             }
@@ -351,7 +343,7 @@ export var QooizPlayer;
                 'data-object-src': image.dataset.objectSrc,
                 'data-type': image.dataset.type,
                 'html': '<i class="material-icons">close</i>',
-                'data-source': sourceName || image.dataset.source
+                'data-name': sourceName || image.dataset.name
             });
             span.style.backgroundImage = `url(${src})`;
             this.imageWrapper.appendChild(span);
@@ -367,21 +359,20 @@ export var QooizPlayer;
          * @param {HTMLSpanElement} element - удаляемый элемент
          */
         deleteItem(element) {
-            let index = this.images.indexOf(element), obj = this.mainWrapper.children[index];
+            let index = this.images.indexOf(element), objSrc = element.dataset.objectSrc || element.dataset.src;
             element.remove();
-            if (obj) {
-                obj.remove();
+            for (let object of Array.from(this.mainWrapper.querySelectorAll('img, video, iframe, embed'))) {
+                if (object['src'] === objSrc) {
+                    object.remove();
+                }
             }
             this.images.splice(index, 1);
             this.images = this.images.filter(val => val);
             this.imagesWidth -= element.offsetWidth;
-            const fieldIndex = this.images.filter(function (image) {
-                return image.dataset.source === element.dataset.source;
-            }).indexOf(element);
             document.dispatchEvent(new CustomEvent('deleteItem', {
                 detail: {
-                    index: fieldIndex,
-                    field: element.dataset.source
+                    src: objSrc,
+                    field: element.dataset.name
                 }
             }));
         }
@@ -401,4 +392,3 @@ export var QooizPlayer;
     };
     QooizPlayer.Player = Player;
 })(QooizPlayer || (QooizPlayer = {}));
-//# sourceMappingURL=player.js.map

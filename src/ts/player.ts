@@ -93,11 +93,6 @@ export namespace QooizPlayer {
                 imageSrc = curImage.dataset.src;
 
             if (!videoSrc) {
-                let parched : string[] | null = imageSrc ? imageSrc.match(/^(.*?\/)image\/(\w+)/) : null;
-                videoSrc = Array.isArray(parched) ? parched[1] + 'video/' + parched[2] + '.mp4' : '';
-            }
-
-            if (!videoSrc) {
                 return null;
             }
 
@@ -188,14 +183,8 @@ export namespace QooizPlayer {
             Player.renderInit(mainWrapper, curImage, 'iframe, embed');
 
             let bookSrc : string = curImage.dataset.objectSrc || '',
-                imageSrc : string = curImage.dataset.src || '',
                 bookSrcMatches : RegExpMatchArray | null = bookSrc.match(/.+?\.([^.]+)$/),
                 bookType = curImage.dataset.type || (bookSrcMatches ? bookSrcMatches[1] : '');
-
-            if (!bookSrc) {
-                let parched : string[] | null = imageSrc ? imageSrc.match(/^(.*?\/)image\/(\w+)/) : null;
-                bookSrc = Array.isArray(parched) && bookType ? parched[1] + 'book/' + parched[2] + '.' + bookType : '';
-            }
 
             if (!bookSrc || !bookType) {
                 return null;
@@ -512,6 +501,11 @@ export namespace QooizPlayer {
 
             this.imageWrapper.classList.add(this.uniq);
 
+            this.setRender();
+            this.setImageClick();
+            this.setDeleteClick();
+            this.setScroll();
+
             element.querySelectorAll(`img:not(.${this.imageStopClass})`).forEach(function (image : HTMLImageElement) {
                 self.addItem(image);
                 image.remove();
@@ -528,11 +522,6 @@ export namespace QooizPlayer {
 
             this.emptyPlayerImage = element.querySelector(`img.${this.imageStopClass}`);
             this.emptyPlayerImageDisplay = this.emptyPlayerImage ? this.emptyPlayerImage.style.display : null;
-
-            this.setRender();
-            this.setImageClick();
-            this.setDeleteClick();
-            this.setScroll();
 
             const firstImage : HTMLSpanElement | null = this.imageWrapper.querySelector('.img');
             if (this.activate && firstImage) {
@@ -571,7 +560,7 @@ export namespace QooizPlayer {
                     'data-object-src': image.dataset.objectSrc,
                     'data-type': image.dataset.type,
                     'html': '<i class="material-icons">close</i>',
-                    'data-source': sourceName || image.dataset.source
+                    'data-name': sourceName || image.dataset.name
                 });
 
             span.style.backgroundImage = `url(${src})`;
@@ -593,28 +582,27 @@ export namespace QooizPlayer {
         public deleteItem(element : HTMLSpanElement) {
 
             let index = this.images.indexOf(element),
-                obj : Element | null = this.mainWrapper.children[index];
+                objSrc : string = element.dataset.objectSrc || element.dataset.src;
 
             element.remove();
-            if (obj) {
-                obj.remove();
+
+            for (let object of Array.from(this.mainWrapper.querySelectorAll('img, video, iframe, embed'))) {
+                if (object['src'] === objSrc) {
+                    object.remove();
+                }
             }
 
             this.images.splice(index, 1);
             this.images = this.images.filter(val => val);
             this.imagesWidth -= element.offsetWidth;
 
-            const fieldIndex = this.images.filter(function (image) {
-                return image.dataset.source === element.dataset.source;
-            }).indexOf(element);
-
             document.dispatchEvent(
                 new CustomEvent(
                     'deleteItem',
                     {
                         detail: {
-                            index: fieldIndex,
-                            field: element.dataset.source
+                            src: objSrc,
+                            field: element.dataset.name
                         }
                     }
                 )
