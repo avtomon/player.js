@@ -96,7 +96,7 @@ export var QooizPlayer;
                 return null;
             }
             for (let video of Array.from(mainWrapper.querySelectorAll('video'))) {
-                if (video.src === videoSrc) {
+                if (video.getAttribute('src') === videoSrc) {
                     video.style.display = 'block';
                     return video;
                 }
@@ -129,7 +129,7 @@ export var QooizPlayer;
             Player.renderInit(mainWrapper, curImage, 'img');
             let imageSrc = curImage.dataset.src;
             for (let image of Array.from(mainWrapper.querySelectorAll('img'))) {
-                if (image.src === imageSrc) {
+                if (image.getAttribute('src') === imageSrc) {
                     image.style.display = 'block';
                     return image;
                 }
@@ -156,7 +156,7 @@ export var QooizPlayer;
                 return null;
             }
             for (let book of Array.from(mainWrapper.querySelectorAll('embed, iframe'))) {
-                if (book.src === bookSrc) {
+                if (book.getAttribute('src') === bookSrc) {
                     book.style.display = 'block';
                     return book.tagName === 'iframe' ? book : book;
                 }
@@ -199,8 +199,8 @@ export var QooizPlayer;
         setImageClick() {
             const self = this;
             this.imageWrapper.addEventListener('click', function (e) {
-                const target = Utils.GoodFuncs.getDelegateTarget(e, '.img');
-                if (!target) {
+                let target = e.target;
+                if (!target.matches('.img')) {
                     return;
                 }
                 e.stopPropagation();
@@ -211,8 +211,9 @@ export var QooizPlayer;
         setDeleteClick() {
             const self = this;
             this.imageWrapper.addEventListener('click', function (e) {
-                let target = Utils.GoodFuncs.getDelegateTarget(e, '.img > i');
-                if (!target) {
+                e.stopPropagation();
+                let target = e.target;
+                if (!target.matches('.img > i')) {
                     return;
                 }
                 const element = target.parentNode, index = self.images.indexOf(element);
@@ -228,7 +229,6 @@ export var QooizPlayer;
                         && self.emptyPlayerImageDisplay
                         && (self.emptyPlayerImage.style.display = self.emptyPlayerImageDisplay);
                 }
-                e.stopPropagation();
             });
         }
         setScroll() {
@@ -362,7 +362,7 @@ export var QooizPlayer;
             let index = this.images.indexOf(element), objSrc = element.dataset.objectSrc || element.dataset.src;
             element.remove();
             for (let object of Array.from(this.mainWrapper.querySelectorAll('img, video, iframe, embed'))) {
-                if (object['src'] === objSrc) {
+                if (object.getAttribute('src') === objSrc) {
                     object.remove();
                 }
             }
@@ -392,3 +392,4 @@ export var QooizPlayer;
     };
     QooizPlayer.Player = Player;
 })(QooizPlayer || (QooizPlayer = {}));
+//# sourceMappingURL=player.js.map

@@ -97,7 +97,7 @@ export namespace QooizPlayer {
             }
 
             for (let video of Array.from(mainWrapper.querySelectorAll('video'))) {
-                if (video.src === videoSrc) {
+                if (video.getAttribute('src') === videoSrc) {
                     video.style.display = 'block';
                     return video;
                 }
@@ -146,7 +146,7 @@ export namespace QooizPlayer {
             let imageSrc = curImage.dataset.src;
 
             for (let image of Array.from(mainWrapper.querySelectorAll('img'))) {
-                if (image.src === imageSrc) {
+                if (image.getAttribute('src') === imageSrc) {
                     image.style.display = 'block';
                     return image;
                 }
@@ -191,7 +191,7 @@ export namespace QooizPlayer {
             }
 
             for (let book of (Array.from(mainWrapper.querySelectorAll('embed, iframe')) as HTMLIFrameElement[] | HTMLEmbedElement[])) {
-                if (book.src === bookSrc) {
+                if (book.getAttribute('src') === bookSrc) {
                     book.style.display = 'block';
                     return book.tagName === 'iframe' ? book as HTMLIFrameElement : book as HTMLEmbedElement;
                 }
@@ -332,10 +332,11 @@ export namespace QooizPlayer {
         protected setImageClick() : void {
             const self = this;
             this.imageWrapper.addEventListener('click', function (e) {
-                const target : HTMLSpanElement = Utils.GoodFuncs.getDelegateTarget(e, '.img');
-                if (!target) {
+                let target = e.target as HTMLElement;
+                if (!target.matches('.img')) {
                     return;
                 }
+
                 e.stopPropagation();
 
                 self.render(target);
@@ -347,8 +348,9 @@ export namespace QooizPlayer {
             const self = this;
             this.imageWrapper.addEventListener('click', function (e) {
 
-                let target : HTMLElement = Utils.GoodFuncs.getDelegateTarget(e, '.img > i');
-                if (!target) {
+                e.stopPropagation();
+                let target = e.target as HTMLElement;
+                if (!target.matches('.img > i')) {
                     return;
                 }
 
@@ -367,8 +369,6 @@ export namespace QooizPlayer {
                     && self.emptyPlayerImageDisplay
                     && (self.emptyPlayerImage.style.display = self.emptyPlayerImageDisplay);
                 }
-
-                e.stopPropagation();
             });
         }
 
@@ -587,7 +587,7 @@ export namespace QooizPlayer {
             element.remove();
 
             for (let object of Array.from(this.mainWrapper.querySelectorAll('img, video, iframe, embed'))) {
-                if (object['src'] === objSrc) {
+                if (object.getAttribute('src') === objSrc) {
                     object.remove();
                 }
             }
