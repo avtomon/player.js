@@ -392,3 +392,4 @@ export var QooizPlayer;
     };
     QooizPlayer.Player = Player;
 })(QooizPlayer || (QooizPlayer = {}));
+//# sourceMappingURL=player.js.map
