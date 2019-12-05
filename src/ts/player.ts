@@ -361,7 +361,7 @@ export namespace QooizPlayer {
                 } else if (self.images[index - 1]) {
                     self.images[index - 1].click();
                 }
-                
+
                 self.deleteItem(element);
 
                 if (!self.images.length) {
@@ -582,7 +582,7 @@ export namespace QooizPlayer {
         public deleteItem(element : HTMLSpanElement) {
 
             let index = this.images.indexOf(element),
-                objSrc : string = element.dataset.objectSrc || element.dataset.src;
+                objSrc : string | undefined = element.dataset.objectSrc || element.dataset.src;
 
             element.remove();
 
