@@ -31,7 +31,7 @@ export declare namespace QooizPlayer {
     /**
      * Просмотрщик на чистом JavaScript. На данный момент может отображать видео, графику и книги в формате PDF.
      */
-    export class Player implements IPlayerOptions {
+    class Player implements IPlayerOptions {
         /**
          * Начало рендеринга
          *
@@ -142,7 +142,7 @@ export declare namespace QooizPlayer {
          *
          * @returns {string}
          */
-        get id(): string;
+        readonly id: string;
         /**
          * Добавить изображение в плеер
          *
@@ -158,5 +158,4 @@ export declare namespace QooizPlayer {
          */
         deleteItem(element: HTMLSpanElement): void;
     }
-    export {};
 }
