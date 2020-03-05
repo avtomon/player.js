@@ -19,15 +19,13 @@
 }
 
 .player .image-wrapper > .img > i {
-    display: none;
-}
-
-.player .image-wrapper > .img:hover > i {
     position: absolute;
     right: 0;
     background-color: white;
     opacity: .8;
     display: block;
+    font-size: 36px;
+    z-index: 9;
 }
 
 .player.book .image-wrapper > .img {
@@ -43,6 +41,10 @@
     position: absolute;
     bottom: 0;
     opacity: .8;
+    width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .player .image-wrapper .img.current {
