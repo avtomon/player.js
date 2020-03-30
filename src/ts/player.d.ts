@@ -119,7 +119,9 @@ export declare namespace QooizPlayer {
         protected imagesWidth: number;
         protected images: HTMLSpanElement[];
         protected position: number;
+        protected fullscreenButtonAdded: boolean;
         protected setRender(): void;
+        protected addFullScreenButton(): void;
         protected setImageClick(): void;
         protected setDeleteClick(): void;
         protected setScroll(): void;

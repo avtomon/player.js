@@ -164,6 +164,10 @@ export namespace QooizPlayer {
                 image
             );
 
+            if (window['M'] !== undefined) {
+                M.Materialbox.init(image);
+            }
+
             return image;
         }
 
@@ -207,6 +211,8 @@ export namespace QooizPlayer {
                 default:
                     book.setAttribute('src', 'https://docs.google.com/viewer?url=' + document.location.origin + bookSrc + '&embedded=true');
             }
+
+            book.allowFullscreen = true;
 
             mainWrapper.insertAdjacentElement(
                 'beforeend',
@@ -298,6 +304,8 @@ export namespace QooizPlayer {
 
         protected position : number = 0;
 
+        protected fullscreenButtonAdded = false;
+
         protected setRender() : void {
             const self = this;
             if (this.playerElement.classList.contains('video')) {
@@ -322,10 +330,33 @@ export namespace QooizPlayer {
 
                 this.render = function (curImage : HTMLElement) {
                     self.emptyPlayerImage && (self.emptyPlayerImage.style.display = 'none');
+                    self.addFullScreenButton();
                     return Player.renderBook(self.mainWrapper, curImage);
                 };
 
                 this.type = 'book';
+            }
+        }
+
+        protected addFullScreenButton() : void {
+            if (!this.fullscreenButtonAdded) {
+                let button = document.createElement('button');
+                button.classList.add('fullscreen');
+                button.type = 'button';
+                this.mainWrapper.append(button);
+                button.addEventListener('click', function () {
+                    Utils.GoodFuncs.nextAll(this, 'iframe').forEach(function (iframe) {
+                        const computedStyle = window.getComputedStyle(iframe);
+                        if (computedStyle.display !== 'none') {
+                            const rFS = iframe.mozRequestFullScreen
+                                || iframe.webkitRequestFullscreen
+                                || iframe.requestFullscreen;
+
+                            rFS.call(iframe);
+                        }
+                    });
+                });
+                this.fullscreenButtonAdded = true;
             }
         }
 
@@ -429,8 +460,7 @@ export namespace QooizPlayer {
          *
          * @returns {number}
          */
-        public scrollTo(index : number) : number | undefined
-        {
+        public scrollTo(index : number) : number | undefined {
             const self = this;
             if (!this.images[index]) {
                 return;
@@ -552,16 +582,16 @@ export namespace QooizPlayer {
 
             let src : string = decodeURI(image.src),
                 span : HTMLSpanElement = Utils.GoodFuncs.createElementWithAttrs(
-                'span',
-                {
-                    'class': 'img',
-                    'data-src': src,
-                    'title': image.title.length > 50 ? image.title.substr(0, 50) + '...' : image.title,
-                    'data-object-src': image.dataset.objectSrc,
-                    'data-type': image.dataset.type,
-                    'html': '<i class="material-icons">close</i>',
-                    'data-name': sourceName || image.dataset.name
-                });
+                    'span',
+                    {
+                        'class': 'img',
+                        'data-src': src,
+                        'title': image.title.length > 50 ? image.title.substr(0, 50) + '...' : image.title,
+                        'data-object-src': image.dataset.objectSrc,
+                        'data-type': image.dataset.type,
+                        'html': '<i class="material-icons">close</i>',
+                        'data-name': sourceName || image.dataset.name
+                    });
 
             span.style.backgroundImage = `url(${src})`;
 

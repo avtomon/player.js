@@ -23,6 +23,7 @@ export var QooizPlayer;
             this.imagesWidth = 0;
             this.images = [];
             this.position = 0;
+            this.fullscreenButtonAdded = false;
             this.playerElement = element;
             this.styleFilePath = (cnf.styleFilePath || Player.defaultOptions.styleFilePath);
             this.activate = !element.classList.contains('no-active');
@@ -139,6 +140,9 @@ export var QooizPlayer;
                 src: imageSrc
             });
             mainWrapper.insertAdjacentElement('beforeend', image);
+            if (window['M'] !== undefined) {
+                M.Materialbox.init(image);
+            }
             return image;
         }
         /**
@@ -169,6 +173,7 @@ export var QooizPlayer;
                 default:
                     book.setAttribute('src', 'https://docs.google.com/viewer?url=' + document.location.origin + bookSrc + '&embedded=true');
             }
+            book.allowFullscreen = true;
             mainWrapper.insertAdjacentElement('beforeend', book);
             return book;
         }
@@ -191,9 +196,30 @@ export var QooizPlayer;
             else if (this.playerElement.classList.contains('book')) {
                 this.render = function (curImage) {
                     self.emptyPlayerImage && (self.emptyPlayerImage.style.display = 'none');
+                    self.addFullScreenButton();
                     return Player.renderBook(self.mainWrapper, curImage);
                 };
                 this.type = 'book';
+            }
+        }
+        addFullScreenButton() {
+            if (!this.fullscreenButtonAdded) {
+                let button = document.createElement('button');
+                button.classList.add('fullscreen');
+                button.type = 'button';
+                this.mainWrapper.append(button);
+                button.addEventListener('click', function () {
+                    Utils.GoodFuncs.nextAll(this, 'iframe').forEach(function (iframe) {
+                        const computedStyle = window.getComputedStyle(iframe);
+                        if (computedStyle.display !== 'none') {
+                            const rFS = iframe.mozRequestFullScreen
+                                || iframe.webkitRequestFullscreen
+                                || iframe.requestFullscreen;
+                            rFS.call(iframe);
+                        }
+                    });
+                });
+                this.fullscreenButtonAdded = true;
             }
         }
         setImageClick() {
