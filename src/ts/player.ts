@@ -518,8 +518,8 @@ export namespace QooizPlayer {
             this.scrollButtonsPadding
                 = (cnf.scrollButtonsPadding || Player.defaultOptions.scrollButtonsPadding) as number;
             this.imageStopClass = (cnf.imageStopClass || Player.defaultOptions.imageStopClass) as string;
-
-            const self = this;
+            this.emptyPlayerImage = element.querySelector(`img.${this.imageStopClass}`);
+            this.emptyPlayerImageDisplay = this.emptyPlayerImage ? this.emptyPlayerImage.style.display : null;
 
             element.classList.add('player');
 
@@ -536,7 +536,21 @@ export namespace QooizPlayer {
             this.setDeleteClick();
             this.setScroll();
 
-            element.querySelectorAll(`img:not(.${this.imageStopClass})`).forEach(function (image : HTMLImageElement) {
+            this.update();
+        }
+
+        /**
+         * Обновить плеер
+         */
+        public update() : void {
+
+            const self = this;
+
+            Array.from(this.imageWrapper.querySelectorAll('.img')).forEach(function (span : HTMLSpanElement) {
+                self.deleteItem(span);
+            });
+
+            this.playerElement.querySelectorAll(`img:not(.${this.imageStopClass}):not(.clone)`).forEach(function (image : HTMLImageElement) {
                 self.addItem(image);
                 image.remove();
             });
@@ -549,9 +563,6 @@ export namespace QooizPlayer {
             });
 
             this.imagesWidth = imagesWidth;
-
-            this.emptyPlayerImage = element.querySelector(`img.${this.imageStopClass}`);
-            this.emptyPlayerImageDisplay = this.emptyPlayerImage ? this.emptyPlayerImage.style.display : null;
 
             const firstImage : HTMLSpanElement | null = this.imageWrapper.querySelector('.img');
             if (this.activate && firstImage) {
@@ -593,7 +604,7 @@ export namespace QooizPlayer {
                         'data-name': sourceName || image.dataset.name
                     });
 
-            span.style.backgroundImage = `url(${src})`;
+            span.style.backgroundImage = `url("${src}")`;
 
             this.imageWrapper.appendChild(span);
             this.images.push(span);

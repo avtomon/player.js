@@ -140,6 +140,10 @@ export declare namespace QooizPlayer {
          */
         constructor(element: HTMLElement, cnf?: IPlayerOptions);
         /**
+         * Обновить плеер
+         */
+        update(): void;
+        /**
          * Геттер для уникального идентификатора плеера
          *
          * @returns {string}

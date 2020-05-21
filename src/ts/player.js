@@ -33,7 +33,8 @@ export var QooizPlayer;
             this.scrollButtonsPadding
                 = (cnf.scrollButtonsPadding || Player.defaultOptions.scrollButtonsPadding);
             this.imageStopClass = (cnf.imageStopClass || Player.defaultOptions.imageStopClass);
-            const self = this;
+            this.emptyPlayerImage = element.querySelector(`img.${this.imageStopClass}`);
+            this.emptyPlayerImageDisplay = this.emptyPlayerImage ? this.emptyPlayerImage.style.display : null;
             element.classList.add('player');
             element.insertAdjacentHTML('beforeend', `<div class="${this.mainWrapperClass}"></div>`);
             element.insertAdjacentHTML('beforeend', `<div class="${this.imageWrapperClass}"></div>`);
@@ -44,22 +45,7 @@ export var QooizPlayer;
             this.setImageClick();
             this.setDeleteClick();
             this.setScroll();
-            element.querySelectorAll(`img:not(.${this.imageStopClass})`).forEach(function (image) {
-                self.addItem(image);
-                image.remove();
-            });
-            this.images = Array.from(this.imageWrapper.querySelectorAll('.img'));
-            let imagesWidth = 0;
-            this.images.forEach(function (img) {
-                imagesWidth += img.offsetWidth;
-            });
-            this.imagesWidth = imagesWidth;
-            this.emptyPlayerImage = element.querySelector(`img.${this.imageStopClass}`);
-            this.emptyPlayerImageDisplay = this.emptyPlayerImage ? this.emptyPlayerImage.style.display : null;
-            const firstImage = this.imageWrapper.querySelector('.img');
-            if (this.activate && firstImage) {
-                firstImage.click();
-            }
+            this.update();
         }
         /**
          * Начало рендеринга
@@ -344,6 +330,29 @@ export var QooizPlayer;
             return scroll;
         }
         /**
+         * Обновить плеер
+         */
+        update() {
+            const self = this;
+            Array.from(this.imageWrapper.querySelectorAll('.img')).forEach(function (span) {
+                self.deleteItem(span);
+            });
+            this.playerElement.querySelectorAll(`img:not(.${this.imageStopClass}):not(.clone)`).forEach(function (image) {
+                self.addItem(image);
+                image.remove();
+            });
+            this.images = Array.from(this.imageWrapper.querySelectorAll('.img'));
+            let imagesWidth = 0;
+            this.images.forEach(function (img) {
+                imagesWidth += img.offsetWidth;
+            });
+            this.imagesWidth = imagesWidth;
+            const firstImage = this.imageWrapper.querySelector('.img');
+            if (this.activate && firstImage) {
+                firstImage.click();
+            }
+        }
+        /**
          * Геттер для уникального идентификатора плеера
          *
          * @returns {string}
@@ -371,7 +380,7 @@ export var QooizPlayer;
                 'html': '<i class="material-icons">close</i>',
                 'data-name': sourceName || image.dataset.name
             });
-            span.style.backgroundImage = `url(${src})`;
+            span.style.backgroundImage = `url("${src}")`;
             this.imageWrapper.appendChild(span);
             this.images.push(span);
             this.imagesWidth += span.offsetWidth;
